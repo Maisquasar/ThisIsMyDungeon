@@ -16,7 +16,9 @@ private:
 	class USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
-		class UCameraComponent* FollowCamera;
+	class UCameraComponent* FollowCamera;
+
+	class UStaticMeshComponent* ProjectileStart;
 
 protected:
 	virtual void BeginPlay() override;
@@ -31,6 +33,8 @@ protected:
 
 	void OnJump();
 
+	void OnShoot();
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -38,6 +42,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseLookUpRate;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		TSubclassOf<class AFireBall> ProjectileClass;
 
 	APlayerCharacter();
 

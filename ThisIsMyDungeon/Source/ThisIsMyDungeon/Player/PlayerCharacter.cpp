@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "PlayerCharacter.h"
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
@@ -9,6 +8,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "../DebugString.hpp"
+#include "FireBall.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -37,18 +38,31 @@ APlayerCharacter::APlayerCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
 
+	ProjectileStart = nullptr;
 }
 
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
+	TArray<UStaticMeshComponent*> children;
+	GetComponents<UStaticMeshComponent>(children);
+	if (children[0])
+		ProjectileStart = children[0];
 }
 
 void APlayerCharacter::OnJump()
 {
 }
 
+
+void APlayerCharacter::OnShoot()
+{
+	if (!ProjectileStart)
+		return;
+	//Debug("%s", * ProjectileStart->GetName());
+	GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), GetActorForwardVector().ToOrientationRotator());
+	// TODO : Fix Position of Projectiles.
+}
 
 void APlayerCharacter::MoveForward(float Value)
 {
@@ -103,6 +117,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	check(PlayerInputComponent);
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &APlayerCharacter::OnShoot);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
