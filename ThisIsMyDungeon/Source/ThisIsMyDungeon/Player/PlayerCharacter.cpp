@@ -50,6 +50,8 @@ void APlayerCharacter::BeginPlay()
 	auto children = GetMesh()->GetChildComponent(0);
 	if (Cast<UStaticMeshComponent>(children))
 		ProjectileStart = Cast<UStaticMeshComponent>(children);
+	CurrentLife = MaxLife;
+	CurrentPower = StartingPower;
 }
 
 void APlayerCharacter::OnJump()
@@ -61,7 +63,6 @@ void APlayerCharacter::OnShoot()
 {
 	if (!ProjectileStart || !ProjectileClass)
 		return;
-
 	// Set-up Variables
 	FVector pos;
 	FVector dir;
