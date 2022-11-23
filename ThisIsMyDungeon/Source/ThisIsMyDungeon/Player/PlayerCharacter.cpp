@@ -10,6 +10,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "../DebugString.hpp"
 #include "FireBall.h"
+#include "NavigationData.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -29,6 +31,7 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->AddLocalOffset(FVector(0, 0, 100));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 300.0f;
 	CameraBoom->bUsePawnControlRotation = true;
@@ -47,6 +50,8 @@ void APlayerCharacter::BeginPlay()
 	auto children = GetMesh()->GetChildComponent(0);
 	if (Cast<UStaticMeshComponent>(children))
 		ProjectileStart = Cast<UStaticMeshComponent>(children);
+	CurrentLife = MaxLife;
+	CurrentPower = StartingPower;
 }
 
 void APlayerCharacter::OnJump()
@@ -56,11 +61,29 @@ void APlayerCharacter::OnJump()
 
 void APlayerCharacter::OnShoot()
 {
-	if (!ProjectileStart)
+	if (!ProjectileStart || !ProjectileClass)
 		return;
-	//Debug("%s", * ProjectileStart->GetName());
-	GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), GetActorForwardVector().ToOrientationRotator());
-	// TODO : Fix Position of Projectiles.
+	// Set-up Variables
+	FVector pos;
+	FVector dir;
+	FVector2D screenSize;
+	GetWorld()->GetGameViewport()->GetViewportSize(screenSize);
+	screenSize = screenSize / 2;
+	// Get Screen Center into world.
+	Cast<APlayerController>(this->GetController())->DeprojectScreenPositionToWorld(screenSize.X, screenSize.Y, pos, dir);
+
+	// Raycast Point to find hit point.
+	FHitResult Hit;
+	auto StartLocation = pos;
+	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * 600000);
+	FCollisionQueryParams CollisionParameters;
+	CollisionParameters.AddIgnoredActor(this);
+	GetWorld()->LineTraceSingleByObjectType(Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic | ECollisionChannel::ECC_WorldDynamic, CollisionParameters);
+	if (Hit.bBlockingHit) {
+		GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), (Hit.Location - ProjectileStart->GetComponentLocation()).ToOrientationRotator());
+	}
+	else
+		GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), FollowCamera->GetForwardVector().ToOrientationRotator());
 }
 
 void APlayerCharacter::MoveForward(float Value)
@@ -106,7 +129,7 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	SetActorRotation(FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)));
 }
 
 // Called to bind functionality to input

@@ -12,13 +12,14 @@ class THISISMYDUNGEON_API APlayerCharacter : public ACharacter
 private:
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
 	class UStaticMeshComponent* ProjectileStart;
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -42,6 +43,23 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseLookUpRate;
+
+	// Life
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Life)
+		int MaxLife = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Life)
+		int CurrentLife = 0;
+
+	// Power
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Power)
+		int MaxPower = 2000;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Power)
+		int CurrentPower = 0;
+
+	UPROPERTY(EditAnywhere, Category = Power)
+		int StartingPower = 800;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TSubclassOf<class AFireBall> ProjectileClass;
