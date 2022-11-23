@@ -44,10 +44,9 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	TArray<UStaticMeshComponent*> children;
-	GetComponents<UStaticMeshComponent>(children);
-	if (children[0])
-		ProjectileStart = children[0];
+	auto children = GetMesh()->GetChildComponent(0);
+	if (Cast<UStaticMeshComponent>(children))
+		ProjectileStart = Cast<UStaticMeshComponent>(children);
 }
 
 void APlayerCharacter::OnJump()
