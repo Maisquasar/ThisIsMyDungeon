@@ -11,6 +11,7 @@
 #include "../DebugString.hpp"
 #include "FireBall.h"
 #include "NavigationData.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
 
 // Sets default values
@@ -129,7 +130,7 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	SetActorRotation(FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)));
+	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f));
 }
 
 // Called to bind functionality to input
