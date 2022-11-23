@@ -10,21 +10,19 @@ UCLASS()
 class THISISMYDUNGEON_API AFireBall : public AActor
 {
 	GENERATED_BODY()
+
+	float CurrentTime;
 	
 public:	
 	// Sets default values for this actor's properties
 	AFireBall();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class UProjectileMovementComponent* ProjectileMovementComponent;
+	class UProjectileMovementComponent* ProjectileMovementComponent;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float TimeUntilDelete = 5.f;
-
-
-	float CurrentTime;
-
+	float TimeUntilDelete = 5.f;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

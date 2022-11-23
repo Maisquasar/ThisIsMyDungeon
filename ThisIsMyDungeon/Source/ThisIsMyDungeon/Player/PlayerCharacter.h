@@ -14,13 +14,17 @@ class THISISMYDUNGEON_API APlayerCharacter : public ACharacter
 private:
 	GENERATED_BODY()
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
 	class UStaticMeshComponent* ProjectileStart;
+
+	FTransform SpawnTransform;
+	
+	FTransform MeshRelativeTransform;
 
 	bool RaycastFromCamera(FHitResult* RV_Hit);
 
@@ -45,6 +49,10 @@ protected:
 
 	void OnCancelTrap();
 
+	void ApplyDamage(int Damage);
+
+	void Respawn();
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -53,6 +61,24 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseLookUpRate;
 
+	// Life
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Life)
+		int MaxLife = 100;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Life)
+		int CurrentLife = 0;
+
+	// Power
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Power)
+		int MaxPower = 2000;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Power)
+		int CurrentPower = 0;
+
+	UPROPERTY(EditAnywhere, Category = Power)
+		int StartingPower = 800;
+
+	// Projectiles
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TSubclassOf<class AFireBall> ProjectileClass;
 

@@ -11,6 +11,9 @@
 #include "Materials/Material.h"
 #include "../DebugString.hpp"
 #include "FireBall.h"
+#include "NavigationData.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "DrawDebugHelpers.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -30,6 +33,7 @@ APlayerCharacter::APlayerCharacter()
 	GetCharacterMovement()->AirControl = 0.2f;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->AddLocalOffset(FVector(0, 0, 100));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 300.0f;
 	CameraBoom->bUsePawnControlRotation = true;
@@ -48,6 +52,10 @@ void APlayerCharacter::BeginPlay()
 	auto children = GetMesh()->GetChildComponent(0);
 	if (Cast<UStaticMeshComponent>(children))
 		ProjectileStart = Cast<UStaticMeshComponent>(children);
+	CurrentLife = MaxLife;
+	CurrentPower = StartingPower;
+	MeshRelativeTransform = GetMesh()->GetRelativeTransform();
+	SpawnTransform = GetActorTransform();
 
 	hit = FHitResult(ForceInit);
 }
@@ -59,11 +67,57 @@ void APlayerCharacter::OnJump()
 
 void APlayerCharacter::OnShoot()
 {
-	if (!ProjectileStart)
+	if (!ProjectileStart || !ProjectileClass)
 		return;
-	//Debug("%s", * ProjectileStart->GetName());
-	GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), GetActorForwardVector().ToOrientationRotator());
-	// TODO : Fix Position of Projectiles.
+	// Set-up Variables
+	FVector pos;
+	FVector dir;
+	FVector2D screenSize;
+	GetWorld()->GetGameViewport()->GetViewportSize(screenSize);
+	screenSize = screenSize / 2;
+	// Get Screen Center into world.
+	Cast<APlayerController>(this->GetController())->DeprojectScreenPositionToWorld(screenSize.X, screenSize.Y, pos, dir);
+
+	// Raycast Point to find hit point.
+	FHitResult Hit;
+	auto StartLocation = pos;
+	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * 600000);
+	FCollisionQueryParams CollisionParameters;
+	CollisionParameters.AddIgnoredActor(this);
+	GetWorld()->LineTraceSingleByObjectType(Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic | ECollisionChannel::ECC_WorldDynamic, CollisionParameters);
+	if (Hit.bBlockingHit) {
+		GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), (Hit.Location - ProjectileStart->GetComponentLocation()).ToOrientationRotator());
+	}
+	else
+		GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), FollowCamera->GetForwardVector().ToOrientationRotator());
+}
+
+void APlayerCharacter::ApplyDamage(int Damage)
+{
+	CurrentLife -= Damage;
+	if (CurrentLife <= 0)
+	{
+		CurrentLife = 0;
+
+		// Enable Ragdoll
+		UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+		DisableInput(Cast<APlayerController>(GetController()));
+		GetMesh()->SetAllBodiesSimulatePhysics(true);
+
+		FTimerHandle _;
+		GetWorldTimerManager().SetTimer(_, this, &APlayerCharacter::Respawn, 5.f, false);
+	}
+}
+
+void APlayerCharacter::Respawn()
+{
+	// Disable Ragdoll
+	EnableInput(Cast<APlayerController>(GetController()));
+	GetMesh()->SetAllBodiesSimulatePhysics(false);
+	GetMesh()->AttachTo(GetCapsuleComponent());
+	GetMesh()->SetRelativeLocationAndRotation(MeshRelativeTransform.GetLocation(), MeshRelativeTransform.GetRotation());
+	this->SetActorTransform(SpawnTransform);
+	CurrentLife = MaxLife;
 }
 
 void APlayerCharacter::MoveForward(float Value)
@@ -118,15 +172,16 @@ void APlayerCharacter::Tick(float DeltaTime)
 			FVector snappedPos = hit.Location;
 			float rest;
 			modff(snappedPos.X / 100.f, &rest) ;
-			snappedPos.X = rest * 100;
+			snappedPos.X = rest * 100 + 50;
 			modff(snappedPos.Y / 100.f, &rest);
-			snappedPos.Y = rest * 100;
+			snappedPos.Y = rest * 100 + 50;
 			
 			trapPreviewInstance->SetActorLocation(snappedPos + hit.Normal * 25);
 		}
 	}
-
+	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f));
 }
+
 
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
