@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "../TrapPreview.h"
+#include "../Trap.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -20,6 +22,10 @@ private:
 
 	class UStaticMeshComponent* ProjectileStart;
 
+	bool RaycastFromCamera(FHitResult* RV_Hit);
+
+	FHitResult hit;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -34,6 +40,10 @@ protected:
 	void OnJump();
 
 	void OnShoot();
+
+	void OnTrapSetUp();
+
+	void OnCancelTrap();
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
@@ -50,5 +60,16 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Trap")
+		TSubclassOf<ATrap> trapTestPrefab;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap")
+		TSubclassOf<ATrap> currTrap;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Trap")
+		TSubclassOf<ATrap> trapPreviewBlueprint;
+
+	UPROPERTY(VisibleAnywhere, Category = "Trap")
+		ATrap* trapPreviewInstance;
 
 };

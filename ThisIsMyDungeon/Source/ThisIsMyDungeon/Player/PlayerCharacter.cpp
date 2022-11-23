@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Materials/Material.h"
 #include "../DebugString.hpp"
 #include "FireBall.h"
 
@@ -47,6 +48,8 @@ void APlayerCharacter::BeginPlay()
 	auto children = GetMesh()->GetChildComponent(0);
 	if (Cast<UStaticMeshComponent>(children))
 		ProjectileStart = Cast<UStaticMeshComponent>(children);
+
+	hit = FHitResult(ForceInit);
 }
 
 void APlayerCharacter::OnJump()
@@ -107,6 +110,22 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (currTrap)
+	{
+		if (trapPreviewInstance)
+		{
+			RaycastFromCamera(&hit);
+			FVector snappedPos = hit.Location;
+			float rest;
+			modff(snappedPos.X / 100.f, &rest) ;
+			snappedPos.X = rest * 100;
+			modff(snappedPos.Y / 100.f, &rest);
+			snappedPos.Y = rest * 100;
+			
+			trapPreviewInstance->SetActorLocation(snappedPos + hit.Normal * 25);
+		}
+	}
+
 }
 
 // Called to bind functionality to input
@@ -119,6 +138,23 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &APlayerCharacter::OnShoot);
 
+	PlayerInputComponent->BindAction("SetUpTrap", IE_Pressed,this, &APlayerCharacter::OnTrapSetUp);
+	PlayerInputComponent->BindAction("CancelTrap", IE_Pressed, this, &APlayerCharacter::OnCancelTrap);
+
+	{
+		FInputActionBinding ActionBinding("ChooseTrap1", IE_Pressed);
+		ActionBinding.ActionDelegate.GetDelegateForManualSet().BindLambda([this]
+			{
+				if (currTrap) return;
+				currTrap = trapTestPrefab;
+				trapPreviewInstance = Cast<ATrap>(GetWorld()->SpawnActor(trapPreviewBlueprint));
+				Debug("Choose trap 1");
+			});
+		PlayerInputComponent->AddActionBinding(ActionBinding);
+	}
+
+
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 
@@ -126,5 +162,78 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
+
+}
+
+bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit)
+{
+	if (Controller == NULL) { return false; }
+
+	// get the camera transform
+	FVector CameraLoc;
+	FRotator CameraRot;
+	GetActorEyesViewPoint(CameraLoc, CameraRot);
+
+	FVector Start = CameraLoc;
+	// Create a variable for distance
+	FVector End = CameraLoc + (CameraRot.Vector() * 800.f);
+
+
+	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
+	RV_TraceParams.bTraceComplex = true;
+	RV_TraceParams.bReturnPhysicalMaterial = true;
+
+	RV_TraceParams.AddIgnoredActor(this);
+
+	
+	bool DidTrace = GetWorld()->LineTraceSingleByChannel(
+		*RV_Hit,		
+		Start,		
+		End,		
+		ECC_WorldDynamic,	
+		RV_TraceParams
+	);
+
+	return DidTrace;
+}
+
+void APlayerCharacter::OnTrapSetUp()
+{
+	FVector normal = hit.Normal;
+	//Debug("%.2f, %.2f, %.2f", normal.X, normal.Y, normal.Z);
+	if (!trapPreviewInstance) return;
+	if (!trapPreviewInstance->canBePlacedInWorld) return;
+
+	if(normal == FVector(0, 0, 0)) 
+	{
+		// raycast hit nothing
+		Debug("None");
+
+		return;
+	}
+
+	if (normal.Z > 0.9f)
+	{
+		// raycast hit the ground
+		Debug("Ground");
+		GetWorld()->SpawnActor<ATrap>(currTrap, trapPreviewInstance->GetActorLocation(), trapPreviewInstance->GetActorRotation());
+		trapPreviewInstance->Destroy();
+		currTrap = 0;
+	}
+	else
+	{
+		// raycast hit a wall
+		Debug("Wall");
+
+		return;
+	}
+	
+}
+
+void APlayerCharacter::OnCancelTrap()
+{
+	if (!currTrap) return;
+	trapPreviewInstance->Destroy();
+	currTrap = 0;
 }
 
