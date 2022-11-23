@@ -4,6 +4,7 @@
 #include "Spawner.h"
 #include "Runtime/Engine/Public/TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "ThisIsMyDungeon/DungeonGameMode.h"
 
 // Sets default values
 ASpawner::ASpawner()
@@ -17,8 +18,9 @@ ASpawner::ASpawner()
 void ASpawner::BeginPlay()
 {
 	Super::BeginPlay();
-	SpawnEnemy();
 	
+	SpawnEnemy();
+
 }
 
 // Called every frame

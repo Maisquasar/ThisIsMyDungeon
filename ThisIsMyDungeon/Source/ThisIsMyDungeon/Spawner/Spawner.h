@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <ThirdParty/PhysX3/PxShared/src/foundation/include/PsArray.h>
+
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Spawner.generated.h"
@@ -14,18 +16,19 @@ class THISISMYDUNGEON_API ASpawner : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ASpawner();
+	
+	virtual void Tick(float DeltaTime) override;
+	
+	void SpawnEnemy();
+	void SpawnActor();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-	void SpawnEnemy();
-	void SpawnActor();
 
-private:
+
+public:
 
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<AActor> ActorToSpawn;
@@ -34,6 +37,6 @@ private:
 		int NumberOfEnemy;
 
 	UPROPERTY(EditAnywhere) 
-		int NumberOfWaves;
+		TArray<int> ArrayOfWaves = {1};
 
 };
