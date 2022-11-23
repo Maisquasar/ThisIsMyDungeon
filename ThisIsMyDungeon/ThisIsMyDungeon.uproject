@@ -1,13 +1,16 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "{7A523778-445D-B0AB-F84E-ADAB9614B83A}",
+	"EngineAssociation": "{A34064A6-4FDF-2E89-5E09-ED929101F963}",
 	"Category": "",
 	"Description": "",
 	"Modules": [
 		{
 			"Name": "ThisIsMyDungeon",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine"
+			]
 		}
 	]
 }
