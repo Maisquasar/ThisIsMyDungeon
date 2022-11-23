@@ -25,14 +25,16 @@ void AEnemyController::OnPossess(APawn* InPawn)
 		GoToLocationId = BBC->GetKeyID("GoToLocation");
 		BTC->StartTree(*Chr->TreeAsset);
 	}
+
+	TArray<AActor*> treasure;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Treasure"), treasure);
+	BBC->SetValueAsVector("GoToLocation", treasure[0]->GetActorLocation());
 	
 }
 
 void AEnemyController::BeginPlay()
 {
 	Super::BeginPlay();
-	TArray<AActor*> treasure;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Treasure"), treasure);
-	BBC->SetValueAsVector("GoToLocation", treasure[0]->GetActorLocation());
+	
 
 }

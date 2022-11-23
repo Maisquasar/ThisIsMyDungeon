@@ -6,6 +6,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "../Enemy/Enemy.h"
 #include "Spawner.generated.h"
 
 UCLASS()
