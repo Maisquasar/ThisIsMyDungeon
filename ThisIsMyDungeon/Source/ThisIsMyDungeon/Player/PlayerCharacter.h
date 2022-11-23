@@ -20,6 +20,9 @@ private:
 
 	class UStaticMeshComponent* ProjectileStart;
 
+	FTransform SpawnTransform;
+	
+	FTransform MeshRelativeTransform;
 
 protected:
 	virtual void BeginPlay() override;
@@ -35,6 +38,10 @@ protected:
 	void OnJump();
 
 	void OnShoot();
+
+	void ApplyDamage(int Damage);
+
+	void Respawn();
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
@@ -61,6 +68,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Power)
 		int StartingPower = 800;
 
+	// Projectiles
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TSubclassOf<class AFireBall> ProjectileClass;
 
