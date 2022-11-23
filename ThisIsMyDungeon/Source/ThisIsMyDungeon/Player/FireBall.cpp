@@ -42,4 +42,3 @@ void AFireBall::Tick(float DeltaTime)
     }
 
 }
-
