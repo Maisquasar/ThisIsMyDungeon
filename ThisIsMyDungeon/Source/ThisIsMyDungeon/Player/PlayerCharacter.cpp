@@ -53,6 +53,8 @@ void APlayerCharacter::BeginPlay()
 		ProjectileStart = Cast<UStaticMeshComponent>(children);
 	CurrentLife = MaxLife;
 	CurrentPower = StartingPower;
+	MeshRelativeTransform = GetMesh()->GetRelativeTransform();
+	SpawnTransform = GetActorTransform();
 }
 
 void APlayerCharacter::OnJump()
@@ -85,6 +87,34 @@ void APlayerCharacter::OnShoot()
 	}
 	else
 		GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), FollowCamera->GetForwardVector().ToOrientationRotator());
+}
+
+void APlayerCharacter::ApplyDamage(int Damage)
+{
+	CurrentLife -= Damage;
+	if (CurrentLife <= 0)
+	{
+		CurrentLife = 0;
+
+		// Enable Ragdoll
+		UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+		DisableInput(Cast<APlayerController>(GetController()));
+		GetMesh()->SetAllBodiesSimulatePhysics(true);
+
+		FTimerHandle _;
+		GetWorldTimerManager().SetTimer(_, this, &APlayerCharacter::Respawn, 5.f, false);
+	}
+}
+
+void APlayerCharacter::Respawn()
+{
+	// Disable Ragdoll
+	EnableInput(Cast<APlayerController>(GetController()));
+	GetMesh()->SetAllBodiesSimulatePhysics(false);
+	GetMesh()->AttachTo(GetCapsuleComponent());
+	GetMesh()->SetRelativeLocationAndRotation(MeshRelativeTransform.GetLocation(), MeshRelativeTransform.GetRotation());
+	this->SetActorTransform(SpawnTransform);
+	CurrentLife = MaxLife;
 }
 
 void APlayerCharacter::MoveForward(float Value)
