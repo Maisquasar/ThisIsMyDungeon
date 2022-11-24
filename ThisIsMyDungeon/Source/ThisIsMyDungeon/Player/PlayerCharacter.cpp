@@ -10,6 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Materials/Material.h"
 #include "../DebugString.hpp"
+#include "DrawDebugHelpers.h"
 #include "FireBall.h"
 #include "NavigationData.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -168,15 +169,41 @@ void APlayerCharacter::Tick(float DeltaTime)
 	{
 		if (trapPreviewInstance)
 		{
+			
 			RaycastFromCamera(&hit);
 			FVector snappedPos = hit.Location;
-			float rest;
-			modff(snappedPos.X / 100.f, &rest) ;
-			snappedPos.X = rest * 100 + 50;
-			modff(snappedPos.Y / 100.f, &rest);
-			snappedPos.Y = rest * 100 + 50;
+			float wholePart;
+
+			if (fabsf(hit.Normal.X) > 0.9f)
+			{
+				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
+				snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
+				snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
+				snappedPos.Y += hit.Location.Y > 0 ? 50 : -50;
+			}
+			if (fabsf(hit.Normal.Y) > 0.9f)
+			{
+				snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
+				snappedPos.X += hit.Location.X > 0 ? 50 : -50;
+				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
+				snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
+			}
+			if (fabsf(hit.Normal.Z) > 0.9f)
+			{
+				snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
+				snappedPos.X += hit.Location.X > 0 ? 50 : -50;
+				snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
+				snappedPos.Y += hit.Location.Y > 0 ? 50 : -50;
+			}
+
 			
+			//DrawDebugBox(GetWorld(), hit.Location + hit.Normal * 25, FVector(50, 50, 25), FColor::Blue, false, -1, 0U, 1.f);
+			DrawDebugSphere(GetWorld(), hit.Location, 40, 12, FColor::Blue, false, -1, 0U, 1.f);
+			DrawDebugSphere(GetWorld(), hit.Location, 20, 12, FColor::Red, false, -1, 0U, 2.f);
+
 			trapPreviewInstance->SetActorLocation(snappedPos + hit.Normal * 25);
+			FRotator rot = FRotationMatrix::MakeFromZ(hit.Normal).Rotator();
+			trapPreviewInstance->SetActorRotation(rot);
 		}
 	}
 	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f));
@@ -231,7 +258,7 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit)
 
 	FVector Start = CameraLoc;
 	// Create a variable for distance
-	FVector End = CameraLoc + (CameraRot.Vector() * 800.f);
+	FVector End = CameraLoc + (CameraRot.Vector() * 1000.f);
 
 
 	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
@@ -245,7 +272,7 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit)
 		*RV_Hit,		
 		Start,		
 		End,		
-		ECC_WorldDynamic,	
+		ECC_WorldStatic,	
 		RV_TraceParams
 	);
 
@@ -279,7 +306,9 @@ void APlayerCharacter::OnTrapSetUp()
 	{
 		// raycast hit a wall
 		Debug("Wall");
-
+		GetWorld()->SpawnActor<ATrap>(currTrap, trapPreviewInstance->GetActorLocation(), trapPreviewInstance->GetActorRotation());
+		trapPreviewInstance->Destroy();
+		currTrap = 0;
 		return;
 	}
 	
