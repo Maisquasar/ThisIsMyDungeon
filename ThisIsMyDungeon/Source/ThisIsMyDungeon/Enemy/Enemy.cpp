@@ -2,7 +2,9 @@
 
 
 #include "Enemy.h"
+#include "ThisIsMyDungeon/DungeonGameMode.h"
 #include "NavigationSystem.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -26,9 +28,11 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	//UNavigationSystemV1::TestPathSync()
+	ADungeonGameMode* GM = Cast<ADungeonGameMode>(UGameplayStatics::GetGameMode(this));
 	if (Health <= 0)
 	{
 		Destroy();
+		GM->counterEnemy--;
 	}
 
 

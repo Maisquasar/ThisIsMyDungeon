@@ -38,6 +38,7 @@ void ADungeonGameMode::Tick(float DeltaSeconds)
 void ADungeonGameMode::StartWaveGM()
 {
 	currentWave++;
+	FTimerHandle MemberTimerHandle2;
 	if(counterEnemy <= 0)
 	{
 		for (int i = 0; i <= Spawners.Num() - 1; i++)
@@ -52,14 +53,12 @@ void ADungeonGameMode::StartWaveGM()
 				}
 			}
 		}
+
+		GetWorld()->GetTimerManager().SetTimer(MemberTimerHandle2, [&]()
+		{
+			TimeWaveGM();
+		}, 5, false);
 	}
-
-	FTimerHandle MemberTimerHandle2;
-	GetWorld()->GetTimerManager().SetTimer(MemberTimerHandle2, [&]()
-			{
-				TimeWaveGM();
-			}, 5, false);
-
 }
 
 void ADungeonGameMode::TimeWaveGM()
