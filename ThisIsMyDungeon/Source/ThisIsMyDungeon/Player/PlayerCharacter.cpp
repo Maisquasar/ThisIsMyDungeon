@@ -82,22 +82,11 @@ void APlayerCharacter::OnShoot()
 {
 	if (!ProjectileStart || !ProjectileClass)
 		return;
-	// Set-up Variables
-	FVector pos;
-	FVector dir;
-	FVector2D screenSize;
-	GetWorld()->GetGameViewport()->GetViewportSize(screenSize);
-	screenSize = screenSize / 2;
-	// Get Screen Center into world.
-	Cast<APlayerController>(this->GetController())->DeprojectScreenPositionToWorld(screenSize.X, screenSize.Y, pos, dir);
 
 	// Raycast Point to find hit point.
 	FHitResult Hit;
-	auto StartLocation = pos;
-	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * 600000);
-	FCollisionQueryParams CollisionParameters;
-	CollisionParameters.AddIgnoredActor(this);
-	GetWorld()->LineTraceSingleByObjectType(Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic | ECollisionChannel::ECC_WorldDynamic, CollisionParameters);
+
+	RaycastFromCamera(&Hit, 600000);
 	if (Hit.bBlockingHit) {
 		GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), (Hit.Location - ProjectileStart->GetComponentLocation()).ToOrientationRotator());
 	}
@@ -200,34 +189,24 @@ void APlayerCharacter::Tick(float DeltaTime)
 			FVector snappedPos = hit.Location;
 			float wholePart;
 
-			if (fabsf(hit.Normal.X) > 0.9f)
-			{
-				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
-				snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
-				snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
-				snappedPos.Y += hit.Location.Y > 0 ? 50 : -50;
-			}
-			if (fabsf(hit.Normal.Y) > 0.9f)
+			if (fabsf(hit.Normal.X) < 0.9f)
 			{
 				snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
 				snappedPos.X += hit.Location.X > 0 ? 50 : -50;
-				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
-				snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
 			}
-			if (fabsf(hit.Normal.Z) > 0.9f)
+			if (fabsf(hit.Normal.Y) < 0.9f)
 			{
-				snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
-				snappedPos.X += hit.Location.X > 0 ? 50 : -50;
 				snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
 				snappedPos.Y += hit.Location.Y > 0 ? 50 : -50;
 			}
+			if (fabsf(hit.Normal.Z) < 0.9f)
+			{
+				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
+				snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
+			}
 
-			
-			//DrawDebugBox(GetWorld(), hit.Location + hit.Normal * 25, FVector(50, 50, 25), FColor::Blue, false, -1, 0U, 1.f);
-			DrawDebugSphere(GetWorld(), hit.Location, 40, 12, FColor::Blue, false, -1, 0U, 1.f);
-			DrawDebugSphere(GetWorld(), hit.Location, 20, 12, FColor::Red, false, -1, 0U, 2.f);
-
-			trapPreviewInstance->SetActorLocation(snappedPos + hit.Normal * 25);
+			// TO CHANGE
+			trapPreviewInstance->SetActorLocation(snappedPos + hit.Normal * trapPreviewInstance->model->GetComponentScale().Z * 50);
 			FRotator rot = FRotationMatrix::MakeFromZ(hit.Normal).Rotator();
 			trapPreviewInstance->SetActorRotation(rot);
 		}
@@ -249,19 +228,34 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("SetUpTrap", IE_Pressed,this, &APlayerCharacter::OnTrapSetUp);
 	PlayerInputComponent->BindAction("CancelTrap", IE_Pressed, this, &APlayerCharacter::OnCancelTrap);
 
+	/*
 	{
 		FInputActionBinding ActionBinding("ChooseTrap1", IE_Pressed);
 		ActionBinding.ActionDelegate.GetDelegateForManualSet().BindLambda([this]
 			{
 				if (currTrap) return;
+				CurrentTrapIndex = 1;
 				currTrap = trapTestPrefab;
 				trapPreviewInstance = Cast<ATrap>(GetWorld()->SpawnActor(trapPreviewBlueprint));
+				UStaticMesh* mesh = trapTestPrefab.GetDefaultObject()->model->GetStaticMesh();
+				
+				if (mesh)
+				{
+					trapPreviewInstance->model->SetStaticMesh(mesh);
+					Debug("mesh is set");
+				}
+				
 				Debug("Choose trap 1");
 			});
 		PlayerInputComponent->AddActionBinding(ActionBinding);
 	}
+	*/
 
 
+	PlayerInputComponent->BindAction("ChooseTrap1", IE_Pressed, this, &APlayerCharacter::OnTrap1);
+	PlayerInputComponent->BindAction("ChooseTrap2", IE_Pressed, this, &APlayerCharacter::OnTrap2);
+	PlayerInputComponent->BindAction("ChooseTrap3", IE_Pressed, this, &APlayerCharacter::OnTrap3);
+	PlayerInputComponent->BindAction("ChooseTrap4", IE_Pressed, this, &APlayerCharacter::OnTrap4);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -273,19 +267,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
-bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit)
+bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 {
 	if (Controller == NULL) { return false; }
-
-	// get the camera transform
-	FVector CameraLoc;
-	FRotator CameraRot;
-	GetActorEyesViewPoint(CameraLoc, CameraRot);
-
-	FVector Start = CameraLoc;
-	// Create a variable for distance
-	FVector End = CameraLoc + (CameraRot.Vector() * 1000.f);
-
 
 	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
 	RV_TraceParams.bTraceComplex = true;
@@ -293,23 +277,54 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit)
 
 	RV_TraceParams.AddIgnoredActor(this);
 
-	
-	bool DidTrace = GetWorld()->LineTraceSingleByChannel(
-		*RV_Hit,		
-		Start,		
-		End,		
-		ECC_WorldStatic,	
-		RV_TraceParams
-	);
+	FVector pos;
+	FVector dir;
+	FVector2D screenSize;
+	GetWorld()->GetGameViewport()->GetViewportSize(screenSize);
+	screenSize = screenSize / 2;
+	Cast<APlayerController>(this->GetController())->DeprojectScreenPositionToWorld(screenSize.X, screenSize.Y, pos, dir);
 
-	return DidTrace;
+	// Raycast Point to find hit point.
+	FHitResult Hit;
+	auto StartLocation = pos;
+	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * MaxDistance);
+	return GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams);
 }
+
+void APlayerCharacter::OnTrap1()
+{
+	CurrentTrapIndex = 1;
+	if (currTrap)
+		return;
+	currTrap = trapTestPrefab;
+	trapPreviewInstance = Cast<ATrap>(GetWorld()->SpawnActor(trapPreviewBlueprint));
+	Debug("Choose trap 1");
+}
+
+void APlayerCharacter::OnTrap2()
+{
+	CurrentTrapIndex = 2;
+	Debug("Choose trap 2");
+}
+
+void APlayerCharacter::OnTrap3()
+{
+	CurrentTrapIndex = 3;
+	Debug("Choose trap 3");
+}
+
+void APlayerCharacter::OnTrap4()
+{
+	CurrentTrapIndex = 4;
+	Debug("Choose trap 4");
+}
+
 
 void APlayerCharacter::OnTrapSetUp()
 {
 	FVector normal = hit.Normal;
 	//Debug("%.2f, %.2f, %.2f", normal.X, normal.Y, normal.Z);
-	if (!trapPreviewInstance) return;
+	if (!trapPreviewInstance || CurrentPower < trapPreviewInstance->Price) return;
 	if (!trapPreviewInstance->canBePlacedInWorld) return;
 
 	if(normal == FVector(0, 0, 0)) 
@@ -320,6 +335,8 @@ void APlayerCharacter::OnTrapSetUp()
 		return;
 	}
 
+	CurrentPower -= trapPreviewInstance->Price;
+	CurrentTrapIndex = 0;
 	if (normal.Z > 0.9f)
 	{
 		// raycast hit the ground
@@ -343,6 +360,7 @@ void APlayerCharacter::OnTrapSetUp()
 void APlayerCharacter::OnCancelTrap()
 {
 	if (!currTrap) return;
+	CurrentTrapIndex = 0;
 	trapPreviewInstance->Destroy();
 	currTrap = 0;
 }

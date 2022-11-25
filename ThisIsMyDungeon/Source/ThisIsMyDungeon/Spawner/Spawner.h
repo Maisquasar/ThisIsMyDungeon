@@ -2,8 +2,6 @@
 
 #pragma once
 
-#include <ThirdParty/PhysX3/PxShared/src/foundation/include/PsArray.h>
-
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "../Enemy/Enemy.h"
@@ -35,7 +33,10 @@ public:
 		TSubclassOf<AActor> ActorToSpawn;
 
 	UPROPERTY(EditAnywhere) 
-		int NumberOfEnemy;
+		int spawnNumberEnemy;
+
+	UPROPERTY(EditAnywhere) 
+		bool test;
 
 	UPROPERTY(EditAnywhere) 
 		TArray<int> ArrayOfWaves = {1};

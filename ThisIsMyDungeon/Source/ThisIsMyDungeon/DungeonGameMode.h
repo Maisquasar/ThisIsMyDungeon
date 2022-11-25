@@ -28,13 +28,14 @@ public:
 	UPROPERTY(EditAnywhere)
 		int treasureLife = 25;
 
+	UPROPERTY(EditAnywhere)
+		int counterEnemy = 0;
+
 	UPROPERTY(EditAnywhere) 
 		TArray<ASpawner*> Spawners;
 
 public:
 
 	void StartWave();
-	
-	
 	
 };
