@@ -4,8 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "../TrapPreview.h"
-#include "../Trap.h"
 #include "PlayerCharacter.generated.h"
 
 UCLASS()
@@ -58,6 +56,8 @@ protected:
 	void OnTrap3();
 	void OnTrap4();
 
+	void SelectTrap(int index);
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -83,9 +83,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = Power)
 		int StartingPower = 800;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Trap)
-		int CurrentTrapIndex = 0;
-
 	// Projectiles
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TSubclassOf<class AFireBall> ProjectileClass;
@@ -94,16 +91,13 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Trap")
-		TSubclassOf<ATrap> trapTestPrefab;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap")
-		TSubclassOf<ATrap> currTrap;
+		class AGenericTrap* CurrentTrap;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Trap")
-		TSubclassOf<ATrap> trapPreviewBlueprint;
+		TArray<TSubclassOf<class AGenericTrap>> TrapsBlueprint;
 
-	UPROPERTY(VisibleAnywhere, Category = "Trap")
-		ATrap* trapPreviewInstance;
-
+	// TO REMOVE
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Trap)
+		int CurrentTrapIndex = 0;
 };
