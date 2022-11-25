@@ -53,6 +53,11 @@ protected:
 
 	void Respawn();
 
+	void OnTrap1();
+	void OnTrap2();
+	void OnTrap3();
+	void OnTrap4();
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -77,6 +82,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Power)
 		int StartingPower = 800;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Trap)
+		int CurrentTrapIndex = 0;
 
 	// Projectiles
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

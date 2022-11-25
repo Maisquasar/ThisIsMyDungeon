@@ -212,19 +212,26 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("SetUpTrap", IE_Pressed,this, &APlayerCharacter::OnTrapSetUp);
 	PlayerInputComponent->BindAction("CancelTrap", IE_Pressed, this, &APlayerCharacter::OnCancelTrap);
 
+	/*
 	{
 		FInputActionBinding ActionBinding("ChooseTrap1", IE_Pressed);
 		ActionBinding.ActionDelegate.GetDelegateForManualSet().BindLambda([this]
 			{
 				if (currTrap) return;
+				CurrentTrapIndex = 1;
 				currTrap = trapTestPrefab;
 				trapPreviewInstance = Cast<ATrap>(GetWorld()->SpawnActor(trapPreviewBlueprint));
 				Debug("Choose trap 1");
 			});
 		PlayerInputComponent->AddActionBinding(ActionBinding);
 	}
+	*/
 
 
+	PlayerInputComponent->BindAction("ChooseTrap1", IE_Pressed, this, &APlayerCharacter::OnTrap1);
+	PlayerInputComponent->BindAction("ChooseTrap2", IE_Pressed, this, &APlayerCharacter::OnTrap2);
+	PlayerInputComponent->BindAction("ChooseTrap3", IE_Pressed, this, &APlayerCharacter::OnTrap3);
+	PlayerInputComponent->BindAction("ChooseTrap4", IE_Pressed, this, &APlayerCharacter::OnTrap4);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -257,9 +264,37 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	FHitResult Hit;
 	auto StartLocation = pos;
 	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * MaxDistance);
-	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red);
 	return GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams);
 }
+
+void APlayerCharacter::OnTrap1()
+{
+	CurrentTrapIndex = 1;
+	if (currTrap)
+		return;
+	currTrap = trapTestPrefab;
+	trapPreviewInstance = Cast<ATrap>(GetWorld()->SpawnActor(trapPreviewBlueprint));
+	Debug("Choose trap 1");
+}
+
+void APlayerCharacter::OnTrap2()
+{
+	CurrentTrapIndex = 2;
+	Debug("Choose trap 2");
+}
+
+void APlayerCharacter::OnTrap3()
+{
+	CurrentTrapIndex = 3;
+	Debug("Choose trap 3");
+}
+
+void APlayerCharacter::OnTrap4()
+{
+	CurrentTrapIndex = 4;
+	Debug("Choose trap 4");
+}
+
 
 void APlayerCharacter::OnTrapSetUp()
 {
@@ -300,6 +335,7 @@ void APlayerCharacter::OnTrapSetUp()
 void APlayerCharacter::OnCancelTrap()
 {
 	if (!currTrap) return;
+	CurrentTrapIndex = 0;
 	trapPreviewInstance->Destroy();
 	currTrap = 0;
 }
