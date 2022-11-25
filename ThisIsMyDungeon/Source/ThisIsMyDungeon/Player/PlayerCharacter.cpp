@@ -70,22 +70,11 @@ void APlayerCharacter::OnShoot()
 {
 	if (!ProjectileStart || !ProjectileClass)
 		return;
-	// Set-up Variables
-	FVector pos;
-	FVector dir;
-	FVector2D screenSize;
-	GetWorld()->GetGameViewport()->GetViewportSize(screenSize);
-	screenSize = screenSize / 2;
-	// Get Screen Center into world.
-	Cast<APlayerController>(this->GetController())->DeprojectScreenPositionToWorld(screenSize.X, screenSize.Y, pos, dir);
 
 	// Raycast Point to find hit point.
 	FHitResult Hit;
-	auto StartLocation = pos;
-	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * 600000);
-	FCollisionQueryParams CollisionParameters;
-	CollisionParameters.AddIgnoredActor(this);
-	GetWorld()->LineTraceSingleByObjectType(Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic | ECollisionChannel::ECC_WorldDynamic, CollisionParameters);
+
+	RaycastFromCamera(&Hit, 600000);
 	if (Hit.bBlockingHit) {
 		GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), (Hit.Location - ProjectileStart->GetComponentLocation()).ToOrientationRotator());
 	}
@@ -247,19 +236,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
-bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit)
+bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 {
 	if (Controller == NULL) { return false; }
-
-	// get the camera transform
-	FVector CameraLoc;
-	FRotator CameraRot;
-	GetActorEyesViewPoint(CameraLoc, CameraRot);
-
-	FVector Start = CameraLoc;
-	// Create a variable for distance
-	FVector End = CameraLoc + (CameraRot.Vector() * 1000.f);
-
 
 	FCollisionQueryParams RV_TraceParams = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
 	RV_TraceParams.bTraceComplex = true;
@@ -267,23 +246,26 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit)
 
 	RV_TraceParams.AddIgnoredActor(this);
 
-	
-	bool DidTrace = GetWorld()->LineTraceSingleByChannel(
-		*RV_Hit,		
-		Start,		
-		End,		
-		ECC_WorldStatic,	
-		RV_TraceParams
-	);
+	FVector pos;
+	FVector dir;
+	FVector2D screenSize;
+	GetWorld()->GetGameViewport()->GetViewportSize(screenSize);
+	screenSize = screenSize / 2;
+	Cast<APlayerController>(this->GetController())->DeprojectScreenPositionToWorld(screenSize.X, screenSize.Y, pos, dir);
 
-	return DidTrace;
+	// Raycast Point to find hit point.
+	FHitResult Hit;
+	auto StartLocation = pos;
+	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * MaxDistance);
+	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red);
+	return GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams);
 }
 
 void APlayerCharacter::OnTrapSetUp()
 {
 	FVector normal = hit.Normal;
 	//Debug("%.2f, %.2f, %.2f", normal.X, normal.Y, normal.Z);
-	if (!trapPreviewInstance) return;
+	if (!trapPreviewInstance || CurrentPower < trapPreviewInstance->Price) return;
 	if (!trapPreviewInstance->canBePlacedInWorld) return;
 
 	if(normal == FVector(0, 0, 0)) 
@@ -294,6 +276,7 @@ void APlayerCharacter::OnTrapSetUp()
 		return;
 	}
 
+	CurrentPower -= trapPreviewInstance->Price;
 	if (normal.Z > 0.9f)
 	{
 		// raycast hit the ground
