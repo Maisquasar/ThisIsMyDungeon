@@ -22,16 +22,17 @@ void ADungeonGameMode::BeginPlay()
 
 void ADungeonGameMode::StartWave()
 {
-	//FTimerHandle Handle2;
-	//GetWorld()->GetTimerManager().SetTimer(Handle2, this, , 100.f);
-
-	for (int i = 0; i <= Spawners.Num() - 1; i++)
+	if(counterEnemy <= 0)
 	{
-		for (int j = 0; j <= Spawners[i]->ArrayOfWaves.Num() - 1; j++)
+		for (int i = 0; i <= Spawners.Num() - 1; i++)
 		{
-			if(Spawners[i]->ArrayOfWaves[j] == currentWave)
+			for (int j = 0; j <= Spawners[i]->ArrayOfWaves.Num() - 1; j++)
 			{
-				Spawners[i]->SpawnEnemy();
+				if(Spawners[i]->ArrayOfWaves[j] == currentWave)
+				{
+					Spawners[i]->SpawnEnemy();
+					counterEnemy += Spawners[i]->spawnNumberEnemy;
+				}
 			}
 		}
 	}
