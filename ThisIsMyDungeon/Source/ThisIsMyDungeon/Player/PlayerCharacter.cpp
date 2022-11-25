@@ -163,34 +163,24 @@ void APlayerCharacter::Tick(float DeltaTime)
 			FVector snappedPos = hit.Location;
 			float wholePart;
 
-			if (fabsf(hit.Normal.X) > 0.9f)
-			{
-				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
-				snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
-				snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
-				snappedPos.Y += hit.Location.Y > 0 ? 50 : -50;
-			}
-			if (fabsf(hit.Normal.Y) > 0.9f)
+			if (fabsf(hit.Normal.X) < 0.9f)
 			{
 				snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
 				snappedPos.X += hit.Location.X > 0 ? 50 : -50;
-				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
-				snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
 			}
-			if (fabsf(hit.Normal.Z) > 0.9f)
+			if (fabsf(hit.Normal.Y) < 0.9f)
 			{
-				snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
-				snappedPos.X += hit.Location.X > 0 ? 50 : -50;
 				snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
 				snappedPos.Y += hit.Location.Y > 0 ? 50 : -50;
 			}
+			if (fabsf(hit.Normal.Z) < 0.9f)
+			{
+				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
+				snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
+			}
 
-			
-			//DrawDebugBox(GetWorld(), hit.Location + hit.Normal * 25, FVector(50, 50, 25), FColor::Blue, false, -1, 0U, 1.f);
-			DrawDebugSphere(GetWorld(), hit.Location, 40, 12, FColor::Blue, false, -1, 0U, 1.f);
-			DrawDebugSphere(GetWorld(), hit.Location, 20, 12, FColor::Red, false, -1, 0U, 2.f);
-
-			trapPreviewInstance->SetActorLocation(snappedPos + hit.Normal * 25);
+			// TO CHANGE
+			trapPreviewInstance->SetActorLocation(snappedPos + hit.Normal * trapPreviewInstance->model->GetComponentScale().Z * 50);
 			FRotator rot = FRotationMatrix::MakeFromZ(hit.Normal).Rotator();
 			trapPreviewInstance->SetActorRotation(rot);
 		}
@@ -221,6 +211,14 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 				CurrentTrapIndex = 1;
 				currTrap = trapTestPrefab;
 				trapPreviewInstance = Cast<ATrap>(GetWorld()->SpawnActor(trapPreviewBlueprint));
+				UStaticMesh* mesh = trapTestPrefab.GetDefaultObject()->model->GetStaticMesh();
+				
+				if (mesh)
+				{
+					trapPreviewInstance->model->SetStaticMesh(mesh);
+					Debug("mesh is set");
+				}
+				
 				Debug("Choose trap 1");
 			});
 		PlayerInputComponent->AddActionBinding(ActionBinding);

@@ -4,6 +4,7 @@
 #include "Spawner.h"
 #include "Runtime/Engine/Public/TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "ThisIsMyDungeon/DungeonGameMode.h"
 
 // Sets default values
 ASpawner::ASpawner()
@@ -30,7 +31,8 @@ void ASpawner::Tick(float DeltaTime)
 
 void ASpawner::SpawnEnemy()
 {
-	for (int i = 0; i <= NumberOfEnemy - 1; i++)
+	
+	for (int i = 0; i <= spawnNumberEnemy - 1; i++)
 	{
 		SpawnActor();
 	}
