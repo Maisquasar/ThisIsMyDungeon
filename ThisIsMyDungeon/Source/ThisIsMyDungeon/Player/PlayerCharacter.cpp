@@ -250,12 +250,14 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	FVector dir;
 	FVector2D screenSize;
 	GetWorld()->GetGameViewport()->GetViewportSize(screenSize);
+	screenSize = screenSize / 2;
 	Cast<APlayerController>(this->GetController())->DeprojectScreenPositionToWorld(screenSize.X, screenSize.Y, pos, dir);
 
 	// Raycast Point to find hit point.
 	FHitResult Hit;
 	auto StartLocation = pos;
 	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * MaxDistance);
+	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red);
 	return GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams);
 }
 
