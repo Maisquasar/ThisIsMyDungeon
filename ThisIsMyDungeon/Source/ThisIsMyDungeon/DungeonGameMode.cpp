@@ -5,6 +5,16 @@
 #include "Runtime/Engine/Public/TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 
+#define Debug(x, ...) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, FString::Printf(TEXT(x), __VA_ARGS__));}
+#define DebugError(x, ...) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT(x), __VA_ARGS__));}
+#define DebugWarning(x, ...) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT(x), __VA_ARGS__));}
+
+
+ADungeonGameMode::ADungeonGameMode()
+{
+	PrimaryActorTick.bStartWithTickEnabled = true;
+	PrimaryActorTick.bCanEverTick = true;
+}
 
 void ADungeonGameMode::BeginPlay()
 {
@@ -14,25 +24,54 @@ void ADungeonGameMode::BeginPlay()
 	TArray<AActor*> TempSpawner;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ClassToFind, TempSpawner);
 
-	for (int i = 0; i < TempSpawner.Num() - 1; i++)
+	for (int i = 0; i <= TempSpawner.Num() - 1; i++)
 	{
 		Spawners.Add(Cast<ASpawner>(TempSpawner[i]));
 	}
 }
 
-void ADungeonGameMode::StartWave()
+void ADungeonGameMode::Tick(float DeltaSeconds)
 {
+	Super::Tick(DeltaSeconds);
+}
+
+void ADungeonGameMode::StartWaveGM()
+{
+	currentWave++;
+	FTimerHandle MemberTimerHandle2;
 	if(counterEnemy <= 0)
 	{
 		for (int i = 0; i <= Spawners.Num() - 1; i++)
 		{
 			for (int j = 0; j <= Spawners[i]->ArrayOfWaves.Num() - 1; j++)
 			{
+				Debug("%d", Spawners[i]->ArrayOfWaves[j]);
 				if(Spawners[i]->ArrayOfWaves[j] == currentWave)
 				{
 					Spawners[i]->SpawnEnemy();
 					counterEnemy += Spawners[i]->spawnNumberEnemy;
 				}
+			}
+		}
+
+		GetWorld()->GetTimerManager().SetTimer(MemberTimerHandle2, [&]()
+		{
+			TimeWaveGM();
+		}, 5, false);
+	}
+}
+
+void ADungeonGameMode::TimeWaveGM()
+{
+	for (int i = 0; i <= Spawners.Num() - 1; i++)
+	{
+		for (int j = 0; j <= Spawners[i]->ArrayOfTimeWaves.Num() - 1; j++)
+		{
+			Debug("%d", Spawners[i]->ArrayOfWaves[j]);
+			if(Spawners[i]->ArrayOfTimeWaves[j] == currentWave)
+			{
+				Spawners[i]->SpawnEnemy();
+				counterEnemy += Spawners[i]->spawnNumberEnemy;
 			}
 		}
 	}

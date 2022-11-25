@@ -19,7 +19,14 @@ void ASpawner::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	SpawnEnemy();
+	//SpawnEnemy();
+	
+	/* for (int i = 0; i < WavesNumber; i++)
+	{
+		int32 fillArray[] = {i + 1};
+		ArrayOfWaves.Append(fillArray, ARRAY_COUNT(fillArray));
+	}*/
+	
 
 }
 
@@ -31,20 +38,27 @@ void ASpawner::Tick(float DeltaTime)
 
 void ASpawner::SpawnEnemy()
 {
+	FTimerHandle Handle;
 	
-	for (int i = 0; i <= spawnNumberEnemy - 1; i++)
+	for (int i = 0; i < spawnNumberEnemy; i++)
 	{
 		SpawnActor();
 	}
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, this, &ASpawner::SpawnEnemy, 1.f);
+	Actor++;
+
+	if(numberOfSpawn > Actor)
+	{
+		GetWorld()->GetTimerManager().SetTimer(Handle, this, &ASpawner::SpawnEnemy, 1.f);
+	}
+	
 }
 
 void ASpawner::SpawnActor()
 {
 	const FVector Location = GetActorLocation();
 	const FRotator Rotation = GetActorRotation();
-	
+
 	GetWorld()->SpawnActor<AActor>(ActorToSpawn, Location, Rotation);
+		
 }
 

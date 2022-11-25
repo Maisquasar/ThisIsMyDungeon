@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
+
 UCLASS()
 class THISISMYDUNGEON_API AEnemy : public ACharacter
 {
@@ -23,6 +24,11 @@ public:
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = "AI")
 		class UBehaviorTree* TreeAsset;
 
+	UPROPERTY(EditAnywhere)
+		FVector TreasureLoc;
+
+	UPROPERTY(EditAnywhere)
+		float Health;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

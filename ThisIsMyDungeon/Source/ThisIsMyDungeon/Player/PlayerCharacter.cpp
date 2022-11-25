@@ -14,7 +14,13 @@
 #include "FireBall.h"
 #include "NavigationData.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "ThisIsMyDungeon/DungeonGameMode.h"
 #include "DrawDebugHelpers.h"
+#include "NavigationSystem.h"
+#include "Navigation/PathFollowingComponent.h"
+#include "NavigationSystem/Public/NavigationPath.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+#include "Kismet/GameplayStatics.h"
 #include "../GenericTrap.h"
 
 // Sets default values
@@ -61,6 +67,14 @@ void APlayerCharacter::BeginPlay()
 	SpawnTransform = GetActorTransform();
 
 	hit = FHitResult(ForceInit);
+	TArray<AActor*> treasure;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Treasure"), treasure);
+	if (treasure.Num() > 0)
+	{
+		TreasureLoc = treasure[0]->GetActorLocation();
+	}
+	SpawnLoc = GetActorLocation();
+
 }
 
 void APlayerCharacter::OnJump()
@@ -112,6 +126,13 @@ void APlayerCharacter::Respawn()
 	CurrentLife = MaxLife;
 }
 
+void APlayerCharacter::StartWave()
+{
+	ADungeonGameMode* GM = Cast<ADungeonGameMode>(UGameplayStatics::GetGameMode(this));
+
+	GM->StartWaveGM();
+}
+
 void APlayerCharacter::MoveForward(float Value)
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
@@ -155,6 +176,20 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), TreasureLoc, SpawnLoc, NULL);
+	if (NavPath)
+	{
+		if (NavPath->IsPartial())
+		{
+			Debug("Block");
+		}
+		else
+		{
+			Debug("Ok");
+		}
+	}
+
 
 	if (CurrentTrap && !CurrentTrap->Placed)
 	{
@@ -314,10 +349,8 @@ void APlayerCharacter::OnTrapSetUp()
 
 void APlayerCharacter::OnCancelTrap()
 {
-	//if (!currTrap) return;
-	/*
-	trapPreviewInstance->Destroy();
-	currTrap = 0;
-	*/
+	if (!CurrentTrap) return;
+	CurrentTrap->Destroy();
+	CurrentTrap = nullptr;
 }
 
