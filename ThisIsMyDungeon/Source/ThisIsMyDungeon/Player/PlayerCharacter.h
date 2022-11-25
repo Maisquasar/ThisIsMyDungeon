@@ -26,7 +26,7 @@ private:
 	
 	FTransform MeshRelativeTransform;
 
-	bool RaycastFromCamera(FHitResult* RV_Hit);
+	bool RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance = 1000.f);
 
 	FHitResult hit;
 
