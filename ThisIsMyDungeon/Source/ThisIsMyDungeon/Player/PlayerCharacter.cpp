@@ -310,6 +310,7 @@ void APlayerCharacter::OnTrapSetUp()
 	}
 
 	CurrentPower -= trapPreviewInstance->Price;
+	CurrentTrapIndex = 0;
 	if (normal.Z > 0.9f)
 	{
 		// raycast hit the ground
