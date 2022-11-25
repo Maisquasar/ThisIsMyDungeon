@@ -16,6 +16,10 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "ThisIsMyDungeon/DungeonGameMode.h"
 #include "DrawDebugHelpers.h"
+#include "NavigationSystem.h"
+#include "Navigation/PathFollowingComponent.h"
+#include "NavigationSystem/Public/NavigationPath.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -61,6 +65,14 @@ void APlayerCharacter::BeginPlay()
 	SpawnTransform = GetActorTransform();
 
 	hit = FHitResult(ForceInit);
+	TArray<AActor*> treasure;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Treasure"), treasure);
+	if (treasure.Num() > 0)
+	{
+		TreasureLoc = treasure[0]->GetActorLocation();
+	}
+	SpawnLoc = GetActorLocation();
+
 }
 
 void APlayerCharacter::OnJump()
@@ -163,6 +175,20 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), TreasureLoc, SpawnLoc, NULL);
+	if (NavPath)
+	{
+		if (NavPath->IsPartial())
+		{
+			Debug("Block");
+		}
+		else
+		{
+			Debug("Ok");
+		}
+	}
+
+
 	if (currTrap)
 	{
 		if (trapPreviewInstance)
@@ -172,34 +198,24 @@ void APlayerCharacter::Tick(float DeltaTime)
 			FVector snappedPos = hit.Location;
 			float wholePart;
 
-			if (fabsf(hit.Normal.X) > 0.9f)
-			{
-				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
-				snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
-				snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
-				snappedPos.Y += hit.Location.Y > 0 ? 50 : -50;
-			}
-			if (fabsf(hit.Normal.Y) > 0.9f)
+			if (fabsf(hit.Normal.X) < 0.9f)
 			{
 				snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
 				snappedPos.X += hit.Location.X > 0 ? 50 : -50;
-				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
-				snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
 			}
-			if (fabsf(hit.Normal.Z) > 0.9f)
+			if (fabsf(hit.Normal.Y) < 0.9f)
 			{
-				snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
-				snappedPos.X += hit.Location.X > 0 ? 50 : -50;
 				snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
 				snappedPos.Y += hit.Location.Y > 0 ? 50 : -50;
 			}
+			if (fabsf(hit.Normal.Z) < 0.9f)
+			{
+				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
+				snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
+			}
 
-			
-			//DrawDebugBox(GetWorld(), hit.Location + hit.Normal * 25, FVector(50, 50, 25), FColor::Blue, false, -1, 0U, 1.f);
-			DrawDebugSphere(GetWorld(), hit.Location, 40, 12, FColor::Blue, false, -1, 0U, 1.f);
-			DrawDebugSphere(GetWorld(), hit.Location, 20, 12, FColor::Red, false, -1, 0U, 2.f);
-
-			trapPreviewInstance->SetActorLocation(snappedPos + hit.Normal * 25);
+			// TO CHANGE
+			trapPreviewInstance->SetActorLocation(snappedPos + hit.Normal * trapPreviewInstance->model->GetComponentScale().Z * 50);
 			FRotator rot = FRotationMatrix::MakeFromZ(hit.Normal).Rotator();
 			trapPreviewInstance->SetActorRotation(rot);
 		}
@@ -223,19 +239,34 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("StartWave", IE_Pressed, this, &APlayerCharacter::StartWave);
 
+	/*
 	{
 		FInputActionBinding ActionBinding("ChooseTrap1", IE_Pressed);
 		ActionBinding.ActionDelegate.GetDelegateForManualSet().BindLambda([this]
 			{
 				if (currTrap) return;
+				CurrentTrapIndex = 1;
 				currTrap = trapTestPrefab;
 				trapPreviewInstance = Cast<ATrap>(GetWorld()->SpawnActor(trapPreviewBlueprint));
+				UStaticMesh* mesh = trapTestPrefab.GetDefaultObject()->model->GetStaticMesh();
+				
+				if (mesh)
+				{
+					trapPreviewInstance->model->SetStaticMesh(mesh);
+					Debug("mesh is set");
+				}
+				
 				Debug("Choose trap 1");
 			});
 		PlayerInputComponent->AddActionBinding(ActionBinding);
 	}
+	*/
 
 
+	PlayerInputComponent->BindAction("ChooseTrap1", IE_Pressed, this, &APlayerCharacter::OnTrap1);
+	PlayerInputComponent->BindAction("ChooseTrap2", IE_Pressed, this, &APlayerCharacter::OnTrap2);
+	PlayerInputComponent->BindAction("ChooseTrap3", IE_Pressed, this, &APlayerCharacter::OnTrap3);
+	PlayerInputComponent->BindAction("ChooseTrap4", IE_Pressed, this, &APlayerCharacter::OnTrap4);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -268,9 +299,37 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	FHitResult Hit;
 	auto StartLocation = pos;
 	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * MaxDistance);
-	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red);
 	return GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams);
 }
+
+void APlayerCharacter::OnTrap1()
+{
+	CurrentTrapIndex = 1;
+	if (currTrap)
+		return;
+	currTrap = trapTestPrefab;
+	trapPreviewInstance = Cast<ATrap>(GetWorld()->SpawnActor(trapPreviewBlueprint));
+	Debug("Choose trap 1");
+}
+
+void APlayerCharacter::OnTrap2()
+{
+	CurrentTrapIndex = 2;
+	Debug("Choose trap 2");
+}
+
+void APlayerCharacter::OnTrap3()
+{
+	CurrentTrapIndex = 3;
+	Debug("Choose trap 3");
+}
+
+void APlayerCharacter::OnTrap4()
+{
+	CurrentTrapIndex = 4;
+	Debug("Choose trap 4");
+}
+
 
 void APlayerCharacter::OnTrapSetUp()
 {
@@ -288,6 +347,7 @@ void APlayerCharacter::OnTrapSetUp()
 	}
 
 	CurrentPower -= trapPreviewInstance->Price;
+	CurrentTrapIndex = 0;
 	if (normal.Z > 0.9f)
 	{
 		// raycast hit the ground
@@ -311,6 +371,7 @@ void APlayerCharacter::OnTrapSetUp()
 void APlayerCharacter::OnCancelTrap()
 {
 	if (!currTrap) return;
+	CurrentTrapIndex = 0;
 	trapPreviewInstance->Destroy();
 	currTrap = 0;
 }
