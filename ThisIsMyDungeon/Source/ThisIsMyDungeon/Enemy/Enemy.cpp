@@ -2,6 +2,7 @@
 
 
 #include "Enemy.h"
+#include "NavigationSystem.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -15,6 +16,8 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+
 	
 }
 
@@ -22,6 +25,8 @@ void AEnemy::BeginPlay()
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	//UNavigationSystemV1::TestPathSync()
+
 
 }
 
