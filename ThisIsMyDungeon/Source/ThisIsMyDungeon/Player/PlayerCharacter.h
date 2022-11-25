@@ -53,6 +53,8 @@ protected:
 
 	void Respawn();
 
+	void StartWave();
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)

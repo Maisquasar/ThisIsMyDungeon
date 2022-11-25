@@ -14,7 +14,9 @@
 #include "FireBall.h"
 #include "NavigationData.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "ThisIsMyDungeon/DungeonGameMode.h"
 #include "DrawDebugHelpers.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -108,6 +110,13 @@ void APlayerCharacter::Respawn()
 	GetMesh()->SetRelativeLocationAndRotation(MeshRelativeTransform.GetLocation(), MeshRelativeTransform.GetRotation());
 	this->SetActorTransform(SpawnTransform);
 	CurrentLife = MaxLife;
+}
+
+void APlayerCharacter::StartWave()
+{
+	ADungeonGameMode* GM = Cast<ADungeonGameMode>(UGameplayStatics::GetGameMode(this));
+
+	GM->StartWaveGM();
 }
 
 void APlayerCharacter::MoveForward(float Value)
@@ -211,6 +220,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("SetUpTrap", IE_Pressed,this, &APlayerCharacter::OnTrapSetUp);
 	PlayerInputComponent->BindAction("CancelTrap", IE_Pressed, this, &APlayerCharacter::OnCancelTrap);
+
+	PlayerInputComponent->BindAction("StartWave", IE_Pressed, this, &APlayerCharacter::StartWave);
 
 	{
 		FInputActionBinding ActionBinding("ChooseTrap1", IE_Pressed);
