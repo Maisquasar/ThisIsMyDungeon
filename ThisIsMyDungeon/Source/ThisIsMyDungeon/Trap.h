@@ -36,5 +36,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		UBoxComponent* coll;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Price)
+		int Price = 100;
 
 };
