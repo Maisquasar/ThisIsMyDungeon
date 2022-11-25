@@ -17,7 +17,7 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-
+	Health = 200;
 	
 }
 
@@ -26,6 +26,10 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	//UNavigationSystemV1::TestPathSync()
+	if (Health <= 0)
+	{
+		Destroy();
+	}
 
 
 }
