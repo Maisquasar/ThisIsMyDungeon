@@ -12,7 +12,7 @@ ATarPuddle::ATarPuddle()
 void ATarPuddle::BeginPlay()
 {
 	Super::BeginPlay();
-	Index = 1;
+	Index = 2;
 }
 
 void ATarPuddle::Tick(float DeltaTime)

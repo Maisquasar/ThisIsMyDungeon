@@ -81,6 +81,10 @@ void APlayerCharacter::OnJump()
 {
 }
 
+int APlayerCharacter::GetCurrentTrapIndex()
+{
+	return CurrentTrap->Index;
+}
 
 void APlayerCharacter::OnShoot()
 {

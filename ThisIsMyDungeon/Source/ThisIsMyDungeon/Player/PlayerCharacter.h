@@ -73,6 +73,13 @@ protected:
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
+	APlayerCharacter();
+
+	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintCallable)
+		int GetCurrentTrapIndex();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseTurnRate;
 
@@ -100,17 +107,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TSubclassOf<class AFireBall> ProjectileClass;
 
-	APlayerCharacter();
-
-	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Trap")
 		class AGenericTrap* CurrentTrap;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Trap")
 		TArray<TSubclassOf<class AGenericTrap>> TrapsBlueprint;
-
-	// TO REMOVE
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Trap)
-		int CurrentTrapIndex = 0;
 };

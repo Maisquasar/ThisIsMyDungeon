@@ -44,8 +44,10 @@ public:
 
 	void SetUp();
 
-	int Index = 0;
-	int Cost = 100;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Index")
+		int Index = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Cost")
+		int Cost = 100;
 
 	bool Placed = false;
 	bool CanBePlaced = false;
