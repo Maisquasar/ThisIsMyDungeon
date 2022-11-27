@@ -244,6 +244,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("ChooseTrap2", IE_Pressed, this, &APlayerCharacter::OnTrap2);
 	PlayerInputComponent->BindAction("ChooseTrap3", IE_Pressed, this, &APlayerCharacter::OnTrap3);
 	PlayerInputComponent->BindAction("ChooseTrap4", IE_Pressed, this, &APlayerCharacter::OnTrap4);
+	
+	PlayerInputComponent->BindAction("StartWave", IE_Pressed, this, &APlayerCharacter::StartWave);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -252,7 +254,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
-
+	
 }
 
 bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
