@@ -41,6 +41,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Trap")
 		class UStaticMeshComponent* Mesh;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Description")
+		FString DescriptionText;
+
 	UFUNCTION(BlueprintImplementableEvent)
 		bool IsOverlappingSomeone();
 

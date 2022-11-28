@@ -19,6 +19,7 @@ void ATarPuddle::BeginPlay()
 {
 	Super::BeginPlay();
 	Index = 2;
+	this->DescriptionText = "Slow down heros and useful for traps to make more damage.";
 	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ATarPuddle::BeginOverlap);
 	BoxCollider->OnComponentEndOverlap.AddDynamic(this, &ATarPuddle::EndOverlap);
 
