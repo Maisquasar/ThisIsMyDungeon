@@ -51,9 +51,15 @@ void AGenericTrap::Tick(float DeltaTime)
 	}
 }
 
+FVector AGenericTrap::GetBoxColliderSize()
+{
+	return Collider->GetScaledBoxExtent();
+}
+
 void AGenericTrap::SetUp()
 {
 	Placed = true;
-	Collider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	//Collider->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
+	Collider->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
 	Mesh->SetMaterial(0, DefaultMaterial);
 }

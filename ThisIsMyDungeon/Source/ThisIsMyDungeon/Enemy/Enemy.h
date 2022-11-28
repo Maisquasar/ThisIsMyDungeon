@@ -20,19 +20,22 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = "AI")
 		class UBehaviorTree* TreeAsset;
+
+	class UWidgetComponent* widgetComp = nullptr;
 
 	UPROPERTY(EditAnywhere)
 		FVector TreasureLoc;
 
-	UPROPERTY(EditAnywhere)
-		float Health;
+	UPROPERTY(EditAnywhere, Category = "Life")
+		int Health = 50;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void ApplyDamage(int Damage);
 };

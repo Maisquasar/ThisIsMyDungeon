@@ -200,25 +200,29 @@ void APlayerCharacter::Tick(float DeltaTime)
 		RaycastFromCamera(&hit);
 		FVector snappedPos = hit.Location;
 		float wholePart;
+		float gridSize = modff(CurrentTrap->size.X / 100.f, &wholePart) * 100.f;
+		
 
 		if (fabsf(hit.Normal.X) < 0.9f)
 		{
 			snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
-			snappedPos.X += hit.Location.X > 0 ? 50 : -50;
+			snappedPos.X += hit.Location.X > 0 ? gridSize : -gridSize;
 		}
 		if (fabsf(hit.Normal.Y) < 0.9f)
 		{
 			snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
-			snappedPos.Y += hit.Location.Y > 0 ? 50 : -50;
+			snappedPos.Y += hit.Location.Y > 0 ? gridSize : -gridSize;
 		}
 		if (fabsf(hit.Normal.Z) < 0.9f)
 		{
 			snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
-			snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
+			snappedPos.Z += hit.Location.Z > 0 ? gridSize : -gridSize;
 		}
+		
 
 		// TO CHANGE
-		CurrentTrap->SetActorLocation(snappedPos + hit.Normal * CurrentTrap->Mesh->GetComponentScale().Z * 50);
+		FVector res = snappedPos + hit.Normal * CurrentTrap->size.Z;
+		CurrentTrap->SetActorLocation(res);
 		FRotator rot = FRotationMatrix::MakeFromZ(hit.Normal).Rotator();
 		CurrentTrap->SetActorRotation(rot);
 
@@ -244,7 +248,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("ChooseTrap2", IE_Pressed, this, &APlayerCharacter::OnTrap2);
 	PlayerInputComponent->BindAction("ChooseTrap3", IE_Pressed, this, &APlayerCharacter::OnTrap3);
 	PlayerInputComponent->BindAction("ChooseTrap4", IE_Pressed, this, &APlayerCharacter::OnTrap4);
-	
+
 	PlayerInputComponent->BindAction("StartWave", IE_Pressed, this, &APlayerCharacter::StartWave);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
@@ -254,7 +258,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
-	
+
 }
 
 bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
@@ -278,7 +282,8 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	FHitResult Hit;
 	auto StartLocation = pos;
 	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * MaxDistance);
-	return GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams);
+	return GetWorld()->LineTraceSingleByChannel(
+		*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams);
 }
 
 void APlayerCharacter::OnTrap1()
@@ -350,7 +355,7 @@ void APlayerCharacter::OnTrapSetUp()
 		return;
 	}
 
-	CurrentPower -= CurrentTrap->Cost;
+	//CurrentPower -= CurrentTrap->Cost;
 	if (normal.Z > 0.9f)
 	{
 		// raycast hit the ground
