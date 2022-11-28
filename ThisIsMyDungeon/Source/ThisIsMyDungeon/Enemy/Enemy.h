@@ -39,6 +39,8 @@ public:
 
 	void ApplyDamage(int Damage);
 
+	FName GetClosestSocket(FVector pos);
+
 	UFUNCTION(BlueprintImplementableEvent)
 	void NewWidgetAnim(FVector pos, int Damage);
 };

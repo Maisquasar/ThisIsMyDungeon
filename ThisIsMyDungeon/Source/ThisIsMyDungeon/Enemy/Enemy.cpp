@@ -47,3 +47,20 @@ void AEnemy::ApplyDamage(int Damage)
 	}
 }
 
+FName AEnemy::GetClosestSocket(FVector pos)
+{
+	float distance = FLT_MAX;
+	FName currentSkel;
+	for (auto skelName : GetMesh()->GetAllSocketNames())
+	{
+		auto skel = GetMesh()->GetSocketLocation(skelName);
+		float currentDistance = FVector::Distance(pos, skel);
+		if (distance > currentDistance)
+		{
+			distance = currentDistance;
+			currentSkel = skelName;
+		}
+	}
+	return currentSkel;
+}
+

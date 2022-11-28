@@ -61,7 +61,10 @@ void AFireBall::OnCollision(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 	Destroy();
 	if (auto Enemy = Cast<AEnemy>(OtherActor))
 	{
-		Enemy->NewWidgetAnim(GetActorLocation(), BaseDamage);
-		Enemy->ApplyDamage(BaseDamage);
+		int damage = BaseDamage;
+		if (Enemy->GetClosestSocket(GetActorLocation()) == "head")
+			damage *= 3;
+		Enemy->NewWidgetAnim(GetActorLocation(), damage);
+		Enemy->ApplyDamage(damage);
 	}
 }
