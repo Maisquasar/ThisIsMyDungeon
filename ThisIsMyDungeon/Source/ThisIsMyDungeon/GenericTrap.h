@@ -53,4 +53,7 @@ public:
 
 	bool Placed = false;
 	bool CanBePlaced = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Size")
+		FVector size;
 };
