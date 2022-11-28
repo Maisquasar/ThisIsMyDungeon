@@ -5,11 +5,6 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
-#pragma once
-
-#define Debug(x, ...) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, FString::Printf(TEXT(x), __VA_ARGS__));}
-#define DebugError(x, ...) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT(x), __VA_ARGS__));}
-#define DebugWarning(x, ...) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT(x), __VA_ARGS__));}
 
 UCLASS()
 class THISISMYDUNGEON_API APlayerCharacter : public ACharacter
@@ -45,6 +40,8 @@ private:
 
 	FHitResult hit;
 
+	float _currentTime = 0;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -66,6 +63,7 @@ protected:
 
 	void ApplyDamage(int Damage);
 
+
 	void Respawn();
 
 	void OnTrap1();
@@ -85,6 +83,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	void AddPower(int add);
+
 	UFUNCTION(BlueprintCallable)
 		int GetCurrentTrapIndex();
 
@@ -102,9 +102,6 @@ public:
 		int CurrentLife = 0;
 
 	// Power
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Power)
-		int MaxPower = 2000;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Power)
 		int CurrentPower = 0;
 

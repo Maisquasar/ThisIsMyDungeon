@@ -26,6 +26,8 @@ public:
 
 	class UWidgetComponent* widgetComp = nullptr;
 
+	class APlayerCharacter* Player;
+
 	UPROPERTY(EditAnywhere)
 		FVector TreasureLoc;
 

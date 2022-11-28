@@ -134,6 +134,11 @@ void APlayerCharacter::ApplyDamage(int Damage)
 	}
 }
 
+void APlayerCharacter::AddPower(int add)
+{
+	CurrentPower += add;
+}
+
 void APlayerCharacter::Respawn()
 {
 	// Disable Ragdoll
@@ -235,7 +240,14 @@ void APlayerCharacter::Tick(float DeltaTime)
 		
 
 	}
-	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f));
+	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f)); 
+
+	if (_currentTime >= 5.f)
+	{
+		AddPower(10);
+		_currentTime = 0;
+	}
+	_currentTime += DeltaTime;
 }
 
 

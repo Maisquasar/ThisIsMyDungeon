@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/WidgetComponent.h"
 #include "../DebugString.hpp"
+#include "../Player/PlayerCharacter.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -19,6 +20,7 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	Player = Cast<APlayerCharacter>(GEngine->GetFirstLocalPlayerController(GetWorld())->GetPawn());
 }
 
 // Called every frame
@@ -43,6 +45,7 @@ void AEnemy::ApplyDamage(int Damage)
 		ADungeonGameMode* GM = Cast<ADungeonGameMode>(UGameplayStatics::GetGameMode(this));
 		if (GM)
 			GM->counterEnemy--;
+		Player->AddPower(10);
 		Destroy();
 	}
 }
