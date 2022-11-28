@@ -22,6 +22,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStatics.h"
 #include "../GenericTrap.h"
+#include "Runtime/Engine/Public/TimerManager.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -65,15 +66,28 @@ void APlayerCharacter::BeginPlay()
 	CurrentPower = StartingPower;
 	MeshRelativeTransform = GetMesh()->GetRelativeTransform();
 	SpawnTransform = GetActorTransform();
-
 	hit = FHitResult(ForceInit);
+	//Get Treasure Location
 	TArray<AActor*> treasure;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Treasure"), treasure);
 	if (treasure.Num() > 0)
 	{
 		TreasureLoc = treasure[0]->GetActorLocation();
 	}
-	SpawnLoc = GetActorLocation();
+	//GetSpawnersLocation
+	TSubclassOf<ASpawner> ClassToFind;
+	ClassToFind = ASpawner::StaticClass();
+	TArray<AActor*> TempSpawner;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ClassToFind, TempSpawner);
+
+	if (TempSpawner.Num() > 0)
+	{
+		for (int i = 0; i <= TempSpawner.Num() - 1; i++)
+		{
+			SpawnLoc.Add(TempSpawner[i]->GetActorLocation());
+		}
+	}
+	PlayerSpawn = GetActorLocation();
 
 }
 
@@ -180,20 +194,6 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), TreasureLoc, SpawnLoc, NULL);
-	if (NavPath)
-	{
-		if (NavPath->IsPartial())
-		{
-			Debug("Block");
-		}
-		else
-		{
-			Debug("Ok");
-		}
-	}
-
 
 	if (CurrentTrap && !CurrentTrap->Placed)
 	{
@@ -317,7 +317,23 @@ void APlayerCharacter::SelectTrap(int index)
 	if (CurrentTrap)
 		Debug("Choose trap %d", index + 1);
 }
-
+void APlayerCharacter::CheckPath()
+{
+	for (int i = 0; i <= SpawnLoc.Num() - 1; i++)
+	{
+		UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), TreasureLoc, SpawnLoc[i], NULL);
+		if (NavPath)
+		{
+			if (NavPath->IsPartial())
+			{
+				lastTrap->Destroy();
+				CurrentPower += lastTrap->Cost;
+				Debug("Blocked");
+			}
+		}
+	}
+	
+}
 
 void APlayerCharacter::OnTrapSetUp()
 {
@@ -339,8 +355,11 @@ void APlayerCharacter::OnTrapSetUp()
 	{
 		// raycast hit the ground
 		Debug("Ground");
-		auto trap = GetWorld()->SpawnActor<AGenericTrap>(CurrentTrap->GetClass(), CurrentTrap->GetActorLocation(), CurrentTrap->GetActorRotation());
-		trap->SetUp();
+		lastTrap = GetWorld()->SpawnActor<AGenericTrap>(CurrentTrap->GetClass(), CurrentTrap->GetActorLocation(), CurrentTrap->GetActorRotation());
+		FTimerHandle Handle;
+		lastTrap->SetUp();
+		GetWorld()->GetTimerManager().SetTimer(Handle, this, &APlayerCharacter::CheckPath, 0.1f);
+		
 	}
 	else
 	{
