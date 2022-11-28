@@ -23,6 +23,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	FVector GetBoxColliderSize();
+
 	class APlayerCharacter* Player;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Material")

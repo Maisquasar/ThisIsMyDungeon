@@ -51,6 +51,11 @@ void AGenericTrap::Tick(float DeltaTime)
 	}
 }
 
+FVector AGenericTrap::GetBoxColliderSize()
+{
+	return Collider->GetScaledBoxExtent();
+}
+
 void AGenericTrap::SetUp()
 {
 	Placed = true;
