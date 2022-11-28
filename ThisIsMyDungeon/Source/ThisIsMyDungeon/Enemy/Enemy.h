@@ -38,4 +38,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void ApplyDamage(int Damage);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void NewWidgetAnim(FVector pos, int Damage);
 };
