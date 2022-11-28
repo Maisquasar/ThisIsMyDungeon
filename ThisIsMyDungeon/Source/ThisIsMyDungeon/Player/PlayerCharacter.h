@@ -7,6 +7,11 @@
 #include "../TrapPreview.h"
 #include "../Trap.h"
 #include "PlayerCharacter.generated.h"
+#pragma once
+
+#define Debug(x, ...) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, FString::Printf(TEXT(x), __VA_ARGS__));}
+#define DebugError(x, ...) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT(x), __VA_ARGS__));}
+#define DebugWarning(x, ...) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::Printf(TEXT(x), __VA_ARGS__));}
 
 UCLASS()
 class THISISMYDUNGEON_API APlayerCharacter : public ACharacter
@@ -16,6 +21,12 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
+
+	UPROPERTY(EditAnywhere)
+		FVector TreasureLoc;
+
+	UPROPERTY(EditAnywhere)
+		FVector SpawnLoc;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
@@ -53,6 +64,11 @@ protected:
 
 	void Respawn();
 
+	void OnTrap1();
+	void OnTrap2();
+	void OnTrap3();
+	void OnTrap4();
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -77,6 +93,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Power)
 		int StartingPower = 800;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Trap)
+		int CurrentTrapIndex = 0;
 
 	// Projectiles
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)

@@ -15,6 +15,10 @@
 #include "NavigationData.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
+#include "NavigationSystem.h"
+#include "Navigation/PathFollowingComponent.h"
+#include "NavigationSystem/Public/NavigationPath.h"
+#include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -59,6 +63,14 @@ void APlayerCharacter::BeginPlay()
 	SpawnTransform = GetActorTransform();
 
 	hit = FHitResult(ForceInit);
+	TArray<AActor*> treasure;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Treasure"), treasure);
+	if (treasure.Num() > 0)
+	{
+		TreasureLoc = treasure[0]->GetActorLocation();
+	}
+	SpawnLoc = GetActorLocation();
+
 }
 
 void APlayerCharacter::OnJump()
@@ -154,6 +166,20 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), TreasureLoc, SpawnLoc, NULL);
+	if (NavPath)
+	{
+		if (NavPath->IsPartial())
+		{
+			Debug("Block");
+		}
+		else
+		{
+			Debug("Ok");
+		}
+	}
+
+
 	if (currTrap)
 	{
 		if (trapPreviewInstance)
@@ -202,11 +228,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("SetUpTrap", IE_Pressed,this, &APlayerCharacter::OnTrapSetUp);
 	PlayerInputComponent->BindAction("CancelTrap", IE_Pressed, this, &APlayerCharacter::OnCancelTrap);
 
+	/*
 	{
 		FInputActionBinding ActionBinding("ChooseTrap1", IE_Pressed);
 		ActionBinding.ActionDelegate.GetDelegateForManualSet().BindLambda([this]
 			{
 				if (currTrap) return;
+				CurrentTrapIndex = 1;
 				currTrap = trapTestPrefab;
 				trapPreviewInstance = Cast<ATrap>(GetWorld()->SpawnActor(trapPreviewBlueprint));
 				UStaticMesh* mesh = trapTestPrefab.GetDefaultObject()->model->GetStaticMesh();
@@ -221,8 +249,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 			});
 		PlayerInputComponent->AddActionBinding(ActionBinding);
 	}
+	*/
 
 
+	PlayerInputComponent->BindAction("ChooseTrap1", IE_Pressed, this, &APlayerCharacter::OnTrap1);
+	PlayerInputComponent->BindAction("ChooseTrap2", IE_Pressed, this, &APlayerCharacter::OnTrap2);
+	PlayerInputComponent->BindAction("ChooseTrap3", IE_Pressed, this, &APlayerCharacter::OnTrap3);
+	PlayerInputComponent->BindAction("ChooseTrap4", IE_Pressed, this, &APlayerCharacter::OnTrap4);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -255,9 +288,37 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	FHitResult Hit;
 	auto StartLocation = pos;
 	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * MaxDistance);
-	DrawDebugLine(GetWorld(), StartLocation, EndLocation, FColor::Red);
 	return GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams);
 }
+
+void APlayerCharacter::OnTrap1()
+{
+	CurrentTrapIndex = 1;
+	if (currTrap)
+		return;
+	currTrap = trapTestPrefab;
+	trapPreviewInstance = Cast<ATrap>(GetWorld()->SpawnActor(trapPreviewBlueprint));
+	Debug("Choose trap 1");
+}
+
+void APlayerCharacter::OnTrap2()
+{
+	CurrentTrapIndex = 2;
+	Debug("Choose trap 2");
+}
+
+void APlayerCharacter::OnTrap3()
+{
+	CurrentTrapIndex = 3;
+	Debug("Choose trap 3");
+}
+
+void APlayerCharacter::OnTrap4()
+{
+	CurrentTrapIndex = 4;
+	Debug("Choose trap 4");
+}
+
 
 void APlayerCharacter::OnTrapSetUp()
 {
@@ -275,6 +336,7 @@ void APlayerCharacter::OnTrapSetUp()
 	}
 
 	CurrentPower -= trapPreviewInstance->Price;
+	CurrentTrapIndex = 0;
 	if (normal.Z > 0.9f)
 	{
 		// raycast hit the ground
@@ -298,6 +360,7 @@ void APlayerCharacter::OnTrapSetUp()
 void APlayerCharacter::OnCancelTrap()
 {
 	if (!currTrap) return;
+	CurrentTrapIndex = 0;
 	trapPreviewInstance->Destroy();
 	currTrap = 0;
 }

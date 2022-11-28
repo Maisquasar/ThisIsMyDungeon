@@ -28,7 +28,11 @@ void AEnemyController::OnPossess(APawn* InPawn)
 
 	TArray<AActor*> treasure;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Treasure"), treasure);
-	BBC->SetValueAsVector("GoToLocation", treasure[0]->GetActorLocation());
+	if (treasure.Num() > 0)
+	{
+
+		BBC->SetValueAsVector("GoToLocation", treasure[0]->GetActorLocation());
+	}
 	
 }
 
