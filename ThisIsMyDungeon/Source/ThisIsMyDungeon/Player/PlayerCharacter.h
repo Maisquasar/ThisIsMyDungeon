@@ -4,8 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
-#include "../TrapPreview.h"
-#include "../Trap.h"
 #include "PlayerCharacter.generated.h"
 #pragma once
 
@@ -69,8 +67,19 @@ protected:
 	void OnTrap3();
 	void OnTrap4();
 
+	void SelectTrap(int index);
+
+	void StartWave();
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
+	APlayerCharacter();
+
+	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintCallable)
+		int GetCurrentTrapIndex();
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 		float BaseTurnRate;
 
@@ -94,27 +103,13 @@ public:
 	UPROPERTY(EditAnywhere, Category = Power)
 		int StartingPower = 800;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Trap)
-		int CurrentTrapIndex = 0;
-
 	// Projectiles
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		TSubclassOf<class AFireBall> ProjectileClass;
 
-	APlayerCharacter();
-
-	virtual void Tick(float DeltaTime) override;
-
-	UPROPERTY(EditDefaultsOnly, Category = "Trap")
-		TSubclassOf<ATrap> trapTestPrefab;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Trap")
-		TSubclassOf<ATrap> currTrap;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Trap")
+		class AGenericTrap* CurrentTrap;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Trap")
-		TSubclassOf<ATrap> trapPreviewBlueprint;
-
-	UPROPERTY(VisibleAnywhere, Category = "Trap")
-		ATrap* trapPreviewInstance;
-
+		TArray<TSubclassOf<class AGenericTrap>> TrapsBlueprint;
 };

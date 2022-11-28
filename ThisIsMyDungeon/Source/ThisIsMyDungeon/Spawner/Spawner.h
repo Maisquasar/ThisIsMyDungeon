@@ -36,9 +36,18 @@ public:
 		int spawnNumberEnemy;
 
 	UPROPERTY(EditAnywhere) 
-		bool test;
+		int WavesNumber;
 
 	UPROPERTY(EditAnywhere) 
-		TArray<int> ArrayOfWaves = {1};
+		int numberOfSpawn;
+
+	UPROPERTY(EditAnywhere) 
+		int Actor;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) 
+		TArray<int> ArrayOfWaves;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly) 
+		TArray<int> ArrayOfTimeWaves;
 
 };

@@ -26,6 +26,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		FVector TreasureLoc;
+
+	UPROPERTY(EditAnywhere)
+		float Health;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

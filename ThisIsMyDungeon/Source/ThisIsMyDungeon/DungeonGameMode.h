@@ -16,7 +16,12 @@ class THISISMYDUNGEON_API ADungeonGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+
+	ADungeonGameMode();
+	
 	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaSeconds) override;
 
 public:
 	UPROPERTY(EditAnywhere) 
@@ -36,6 +41,7 @@ public:
 
 public:
 
-	void StartWave();
-	
+	void StartWaveGM();
+	void TimeWaveGM();
+
 };
