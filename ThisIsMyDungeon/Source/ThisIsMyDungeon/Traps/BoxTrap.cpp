@@ -14,6 +14,7 @@ void ABoxTrap::BeginPlay()
 {
 	Super::BeginPlay();
 	Index = 1;
+	this->DescriptionText = "Blocks and redirects heros paths and useful for forcing heros into traps.";
 }
 
 void ABoxTrap::Tick(float DeltaTime)

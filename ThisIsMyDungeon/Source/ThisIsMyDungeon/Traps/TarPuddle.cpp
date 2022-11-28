@@ -13,6 +13,7 @@ void ATarPuddle::BeginPlay()
 {
 	Super::BeginPlay();
 	Index = 2;
+	this->DescriptionText = "Slow down heros and useful for traps to make more damage.";
 }
 
 void ATarPuddle::Tick(float DeltaTime)

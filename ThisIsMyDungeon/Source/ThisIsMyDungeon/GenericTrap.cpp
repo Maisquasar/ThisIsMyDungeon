@@ -32,6 +32,7 @@ void AGenericTrap::BeginPlay()
 	DefaultMaterial = Mesh->GetMaterial(0);
 	Mesh->SetMaterial(0, InvalidPreviewMaterial);
 	Player = Cast<APlayerCharacter>(GEngine->GetFirstLocalPlayerController(GetWorld())->GetPawn());
+	DescriptionText = "TODO: Add Description here";
 }
 
 // Called every frame
