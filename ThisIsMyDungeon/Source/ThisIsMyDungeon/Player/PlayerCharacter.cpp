@@ -22,6 +22,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStatics.h"
 #include "../GenericTrap.h"
+#include "../Enemy/Enemy.h"
 #include "Runtime/Engine/Public/TimerManager.h"
 
 // Sets default values
@@ -197,34 +198,41 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	if (CurrentTrap && !CurrentTrap->Placed)
 	{
-		RaycastFromCamera(&hit);
-		FVector snappedPos = hit.Location;
-		float wholePart;
-		float gridSize = modff(CurrentTrap->size.X / 100.f, &wholePart) * 100.f;
-		
+		if (RaycastFromCamera(&hit))
+		{
+			FVector snappedPos = hit.Location;
+			float wholePart;
+			float gridSize = modff(CurrentTrap->size.X / 100.f, &wholePart) * 100.f;
 
-		if (fabsf(hit.Normal.X) < 0.9f)
-		{
-			snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
-			snappedPos.X += hit.Location.X > 0 ? gridSize : -gridSize;
+
+			if (fabsf(hit.Normal.X) < 0.9f)
+			{
+				snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
+				snappedPos.X += hit.Location.X > 0 ? gridSize : -gridSize;
+			}
+			if (fabsf(hit.Normal.Y) < 0.9f)
+			{
+				snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
+				snappedPos.Y += hit.Location.Y > 0 ? gridSize : -gridSize;
+			}
+			if (fabsf(hit.Normal.Z) < 0.9f)
+			{
+				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
+				snappedPos.Z += hit.Location.Z > 0 ? gridSize : -gridSize;
+			}
+
+
+			// TO CHANGE
+			FVector res = snappedPos + hit.Normal * CurrentTrap->size.Z;
+			CurrentTrap->SetActorLocation(res);
+			FRotator rot = FRotationMatrix::MakeFromZ(hit.Normal).Rotator();
+			CurrentTrap->SetActorRotation(rot);
 		}
-		if (fabsf(hit.Normal.Y) < 0.9f)
+		else
 		{
-			snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
-			snappedPos.Y += hit.Location.Y > 0 ? gridSize : -gridSize;
-		}
-		if (fabsf(hit.Normal.Z) < 0.9f)
-		{
-			snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
-			snappedPos.Z += hit.Location.Z > 0 ? gridSize : -gridSize;
+			CurrentTrap->SetActorLocation(FVector(0,0,0));
 		}
 		
-
-		// TO CHANGE
-		FVector res = snappedPos + hit.Normal * CurrentTrap->size.Z;
-		CurrentTrap->SetActorLocation(res);
-		FRotator rot = FRotationMatrix::MakeFromZ(hit.Normal).Rotator();
-		CurrentTrap->SetActorRotation(rot);
 
 	}
 	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f));
@@ -282,9 +290,21 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	FHitResult Hit;
 	auto StartLocation = pos;
 	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * MaxDistance);
-	return GetWorld()->LineTraceSingleByChannel(
-		*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams);
-}
+	if (GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams))
+	{
+		if (AEnemy* Character = Cast<AEnemy>(RV_Hit->Actor))
+		{
+			Debug("Enemy");
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+		}
+	return false;
+	}
+	
 
 void APlayerCharacter::OnTrap1()
 {
