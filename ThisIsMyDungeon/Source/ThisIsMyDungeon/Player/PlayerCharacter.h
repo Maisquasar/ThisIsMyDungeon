@@ -24,7 +24,13 @@ private:
 		FVector TreasureLoc;
 
 	UPROPERTY(EditAnywhere)
-		FVector SpawnLoc;
+		TArray<FVector> SpawnLoc;
+
+	UPROPERTY(EditAnywhere)
+		FVector PlayerSpawn;
+
+	UPROPERTY(EditAnywhere)
+		class AGenericTrap* lastTrap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
@@ -68,6 +74,8 @@ protected:
 	void OnTrap4();
 
 	void SelectTrap(int index);
+
+	void CheckPath();
 
 	void StartWave();
 

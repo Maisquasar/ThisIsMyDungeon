@@ -22,6 +22,7 @@
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 #include "Kismet/GameplayStatics.h"
 #include "../GenericTrap.h"
+#include "Runtime/Engine/Public/TimerManager.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -65,15 +66,28 @@ void APlayerCharacter::BeginPlay()
 	CurrentPower = StartingPower;
 	MeshRelativeTransform = GetMesh()->GetRelativeTransform();
 	SpawnTransform = GetActorTransform();
-
 	hit = FHitResult(ForceInit);
+	//Get Treasure Location
 	TArray<AActor*> treasure;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Treasure"), treasure);
 	if (treasure.Num() > 0)
 	{
 		TreasureLoc = treasure[0]->GetActorLocation();
 	}
-	SpawnLoc = GetActorLocation();
+	//GetSpawnersLocation
+	TSubclassOf<ASpawner> ClassToFind;
+	ClassToFind = ASpawner::StaticClass();
+	TArray<AActor*> TempSpawner;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ClassToFind, TempSpawner);
+
+	if (TempSpawner.Num() > 0)
+	{
+		for (int i = 0; i <= TempSpawner.Num() - 1; i++)
+		{
+			SpawnLoc.Add(TempSpawner[i]->GetActorLocation());
+		}
+	}
+	PlayerSpawn = GetActorLocation();
 
 }
 
@@ -181,44 +195,34 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), TreasureLoc, SpawnLoc, NULL);
-	if (NavPath)
-	{
-		if (NavPath->IsPartial())
-		{
-			Debug("Block");
-		}
-		else
-		{
-			Debug("Ok");
-		}
-	}
-
-
 	if (CurrentTrap && !CurrentTrap->Placed)
 	{
 		RaycastFromCamera(&hit);
 		FVector snappedPos = hit.Location;
 		float wholePart;
+		float gridSize = modff(CurrentTrap->size.X / 100.f, &wholePart) * 100.f;
+		
 
 		if (fabsf(hit.Normal.X) < 0.9f)
 		{
 			snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
-			snappedPos.X += hit.Location.X > 0 ? 50 : -50;
+			snappedPos.X += hit.Location.X > 0 ? gridSize : -gridSize;
 		}
 		if (fabsf(hit.Normal.Y) < 0.9f)
 		{
 			snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
-			snappedPos.Y += hit.Location.Y > 0 ? 50 : -50;
+			snappedPos.Y += hit.Location.Y > 0 ? gridSize : -gridSize;
 		}
 		if (fabsf(hit.Normal.Z) < 0.9f)
 		{
 			snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
-			snappedPos.Z += hit.Location.Z > 0 ? 50 : -50;
+			snappedPos.Z += hit.Location.Z > 0 ? gridSize : -gridSize;
 		}
+		
 
 		// TO CHANGE
-		CurrentTrap->SetActorLocation(snappedPos + hit.Normal * CurrentTrap->Mesh->GetComponentScale().Z * 50);
+		FVector res = snappedPos + hit.Normal * CurrentTrap->size.Z;
+		CurrentTrap->SetActorLocation(res);
 		FRotator rot = FRotationMatrix::MakeFromZ(hit.Normal).Rotator();
 		CurrentTrap->SetActorRotation(rot);
 
@@ -244,7 +248,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("ChooseTrap2", IE_Pressed, this, &APlayerCharacter::OnTrap2);
 	PlayerInputComponent->BindAction("ChooseTrap3", IE_Pressed, this, &APlayerCharacter::OnTrap3);
 	PlayerInputComponent->BindAction("ChooseTrap4", IE_Pressed, this, &APlayerCharacter::OnTrap4);
-	
+
 	PlayerInputComponent->BindAction("StartWave", IE_Pressed, this, &APlayerCharacter::StartWave);
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
@@ -254,7 +258,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
-	
+
 }
 
 bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
@@ -278,7 +282,8 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	FHitResult Hit;
 	auto StartLocation = pos;
 	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * MaxDistance);
-	return GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams);
+	return GetWorld()->LineTraceSingleByChannel(
+		*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams);
 }
 
 void APlayerCharacter::OnTrap1()
@@ -317,7 +322,23 @@ void APlayerCharacter::SelectTrap(int index)
 	if (CurrentTrap)
 		Debug("Choose trap %d", index + 1);
 }
-
+void APlayerCharacter::CheckPath()
+{
+	for (int i = 0; i <= SpawnLoc.Num() - 1; i++)
+	{
+		UNavigationPath* NavPath = UNavigationSystemV1::FindPathToLocationSynchronously(GetWorld(), TreasureLoc, SpawnLoc[i], NULL);
+		if (NavPath)
+		{
+			if (NavPath->IsPartial())
+			{
+				lastTrap->Destroy();
+				CurrentPower += lastTrap->Cost;
+				Debug("Blocked");
+			}
+		}
+	}
+	
+}
 
 void APlayerCharacter::OnTrapSetUp()
 {
@@ -334,13 +355,16 @@ void APlayerCharacter::OnTrapSetUp()
 		return;
 	}
 
-	CurrentPower -= CurrentTrap->Cost;
+	//CurrentPower -= CurrentTrap->Cost;
 	if (normal.Z > 0.9f)
 	{
 		// raycast hit the ground
 		Debug("Ground");
-		auto trap = GetWorld()->SpawnActor<AGenericTrap>(CurrentTrap->GetClass(), CurrentTrap->GetActorLocation(), CurrentTrap->GetActorRotation());
-		trap->SetUp();
+		lastTrap = GetWorld()->SpawnActor<AGenericTrap>(CurrentTrap->GetClass(), CurrentTrap->GetActorLocation(), CurrentTrap->GetActorRotation());
+		FTimerHandle Handle;
+		lastTrap->SetUp();
+		GetWorld()->GetTimerManager().SetTimer(Handle, this, &APlayerCharacter::CheckPath, 0.1f);
+		
 	}
 	else
 	{
