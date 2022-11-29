@@ -319,7 +319,7 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	{
 		if (AEnemy* Character = Cast<AEnemy>(RV_Hit->Actor))
 		{
-			Debug("Enemy");
+			//Debug("Enemy");
 			return false;
 		}
 		else
@@ -359,13 +359,13 @@ void APlayerCharacter::SelectTrap(int index)
 		CurrentTrap->Destroy();
 	if (!TrapsBlueprint[index])
 	{
-		DebugError("Missing Trap Blueprint %d", index);
+		//DebugError("Missing Trap Blueprint %d", index);
 		return;
 	}
 
 	CurrentTrap = Cast<AGenericTrap>(GetWorld()->SpawnActor(TrapsBlueprint[index]));
-	if (CurrentTrap)
-		Debug("Choose trap %d", index + 1);
+	//if (CurrentTrap)
+		//Debug("Choose trap %d", index + 1);
 }
 void APlayerCharacter::CheckPath()
 {
@@ -378,7 +378,7 @@ void APlayerCharacter::CheckPath()
 			{
 				lastTrap->Destroy();
 				CurrentPower += lastTrap->Cost;
-				Debug("Blocked");
+				//Debug("Blocked");
 			}
 		}
 	}
@@ -395,7 +395,7 @@ void APlayerCharacter::OnTrapSetUp()
 	if (normal == FVector(0, 0, 0))
 	{
 		// raycast hit nothing
-		Debug("None");
+		//Debug("None");
 
 		return;
 	}
@@ -404,7 +404,7 @@ void APlayerCharacter::OnTrapSetUp()
 	if (normal.Z > 0.9f)
 	{
 		// raycast hit the ground
-		Debug("Ground");
+		//Debug("Ground");
 		lastTrap = GetWorld()->SpawnActor<AGenericTrap>(CurrentTrap->GetClass(), CurrentTrap->GetActorLocation(), CurrentTrap->GetActorRotation());
 		FTimerHandle Handle;
 		lastTrap->SetUp();
@@ -414,7 +414,7 @@ void APlayerCharacter::OnTrapSetUp()
 	else
 	{
 		// raycast hit a wall
-		Debug("Wall");
+		//Debug("Wall");
 		auto trap = GetWorld()->SpawnActor<AGenericTrap>(CurrentTrap->GetClass(), CurrentTrap->GetActorLocation(), CurrentTrap->GetActorRotation());
 		trap->SetUp();
 	}

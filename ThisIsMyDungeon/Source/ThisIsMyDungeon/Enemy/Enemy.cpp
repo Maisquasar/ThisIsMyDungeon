@@ -5,7 +5,6 @@
 #include "ThisIsMyDungeon/DungeonGameMode.h"
 #include "NavigationSystem.h"
 #include "Kismet/GameplayStatics.h"
-#include "Components/WidgetComponent.h"
 #include "../DebugString.hpp"
 #include "../Player/PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
