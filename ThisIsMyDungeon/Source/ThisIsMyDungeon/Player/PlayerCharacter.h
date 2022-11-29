@@ -27,6 +27,8 @@ private:
 	UPROPERTY(EditAnywhere)
 		class AGenericTrap* lastTrap;
 
+	class AEnemy* PreviousEnemy;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 

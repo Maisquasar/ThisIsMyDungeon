@@ -22,6 +22,7 @@ void AEnemy::BeginPlay()
 	Super::BeginPlay();
 	Player = Cast<APlayerCharacter>(GEngine->GetFirstLocalPlayerController(GetWorld())->GetPawn());
 	MaxSpeed = this->GetCharacterMovement()->MaxWalkSpeed;
+	Health = MaxHealth;
 }
 
 // Called every frame
