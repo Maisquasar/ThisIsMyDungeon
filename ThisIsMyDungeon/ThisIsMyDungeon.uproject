@@ -1,0 +1,17 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "{C0CCC1A5-4767-666F-A11F-25B4E40DF85E}",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "ThisIsMyDungeon",
+			"Type": "Runtime",
+			"LoadingPhase": "Default",
+			"AdditionalDependencies": [
+				"Engine",
+				"AIModule"
+			]
+		}
+	]
+}
