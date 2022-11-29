@@ -103,9 +103,9 @@ int APlayerCharacter::GetCurrentTrapIndex()
 
 void APlayerCharacter::OnShoot()
 {
-	if (!ProjectileStart || !ProjectileClass)
+	if (!ProjectileStart || !ProjectileClass || _currentFireBallCooldown > 0)
 		return;
-
+	_currentFireBallCooldown = FireBallCooldown;
 	// Raycast Point to find hit point.
 	FHitResult Hit;
 
@@ -255,6 +255,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 	//Debug("%d", CurrentPower);
 	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f));
 
+	if (_currentFireBallCooldown > 0)
+	{
+		_currentFireBallCooldown -= DeltaTime;
+	}	
 	if (_currentTime >= 5.f)
 	{
 		AddPower(10);

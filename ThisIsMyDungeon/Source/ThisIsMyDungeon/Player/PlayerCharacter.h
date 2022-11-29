@@ -44,6 +44,7 @@ private:
 
 	float _currentTime = 0;
 
+	float _currentFireBallCooldown;
 protected:
 	virtual void BeginPlay() override;
 
@@ -110,6 +111,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Power)
 		int StartingPower = 800;
+
+
+	UPROPERTY(EditAnywhere)
+		float FireBallCooldown = 1;
 
 	// Projectiles
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
