@@ -134,6 +134,14 @@ void APlayerCharacter::ApplyDamage(int Damage)
 	}
 }
 
+void APlayerCharacter::DisableTrap(bool value)
+{
+	TrapHidden = value;
+	CurrentTrap->SetActorHiddenInGame(value);
+	CurrentTrap->SetActorEnableCollision(!value);
+	CurrentTrap->SetActorTickEnabled(!value);
+}
+
 void APlayerCharacter::AddPower(int add)
 {
 	CurrentPower += add;
@@ -205,6 +213,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 	{
 		if (RaycastFromCamera(&hit))
 		{
+			if (TrapHidden)
+			{
+				DisableTrap(false);
+			}
 			FVector snappedPos = hit.Location;
 			float wholePart;
 			float gridSize = modff(CurrentTrap->size.X / 100.f, &wholePart) * 100.f;
@@ -235,7 +247,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 		}
 		else
 		{
-			CurrentTrap->SetActorLocation(FVector(0,0,0));
+			DisableTrap(true);
 		}
 		
 

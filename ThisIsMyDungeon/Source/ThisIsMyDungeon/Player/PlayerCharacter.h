@@ -38,6 +38,8 @@ private:
 
 	bool RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance = 1000.f);
 
+	bool TrapHidden = false;
+
 	FHitResult hit;
 
 	float _currentTime = 0;
@@ -63,6 +65,7 @@ protected:
 
 	void ApplyDamage(int Damage);
 
+	void DisableTrap(bool);
 
 	void Respawn();
 
