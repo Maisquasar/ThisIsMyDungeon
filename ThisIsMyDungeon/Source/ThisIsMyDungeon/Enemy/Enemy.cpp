@@ -8,6 +8,7 @@
 #include "Components/WidgetComponent.h"
 #include "../DebugString.hpp"
 #include "../Player/PlayerCharacter.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -21,6 +22,7 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	Player = Cast<APlayerCharacter>(GEngine->GetFirstLocalPlayerController(GetWorld())->GetPawn());
+	MaxSpeed = this->GetCharacterMovement()->MaxWalkSpeed;
 }
 
 // Called every frame

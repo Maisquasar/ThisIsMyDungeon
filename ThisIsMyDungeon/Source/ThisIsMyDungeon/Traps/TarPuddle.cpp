@@ -38,7 +38,7 @@ void ATarPuddle::Tick(float DeltaTime)
 		if (AEnemy* enemy = Cast<AEnemy>(OtherActor) )
 		{
 			UCharacterMovementComponent* MovementPtr = Cast<UCharacterMovementComponent>(enemy->GetMovementComponent());
-			MovementPtr->MaxWalkSpeed = enemy->GetMovementComponent()->GetMaxSpeed()/4;
+			MovementPtr->MaxWalkSpeed = enemy->MaxSpeed /4;
 		}
 		
 	}
@@ -52,7 +52,7 @@ void ATarPuddle::EndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Ot
 		if (AEnemy* enemy = Cast<AEnemy>(OtherActor))
 		{	
 			UCharacterMovementComponent* MovementPtr = Cast<UCharacterMovementComponent>(enemy->GetMovementComponent());
-			MovementPtr->MaxWalkSpeed = enemy->GetMovementComponent()->GetMaxSpeed() * 4;
+			MovementPtr->MaxWalkSpeed = enemy->MaxSpeed;
 		}
 	}
 }
