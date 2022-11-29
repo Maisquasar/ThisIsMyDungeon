@@ -101,14 +101,14 @@ public:
 		float BaseLookUpRate;
 
 	// Life
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Life)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Life)
 		int MaxLife = 100;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Life)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Life)
 		int CurrentLife = 0;
 
 	// Power
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Power)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Power)
 		int CurrentPower = 0;
 
 	UPROPERTY(EditAnywhere, Category = Power)

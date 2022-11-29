@@ -14,6 +14,9 @@ AGenericTrap::AGenericTrap()
 
 	Collider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
 	Collider->SetupAttachment(GetRootComponent());
+
+	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	Mesh->SetupAttachment(Collider);
 }
 
 // Called when the game starts or when spawned
@@ -21,13 +24,7 @@ void AGenericTrap::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Getting Mesh.
-	TArray<UStaticMeshComponent*> Components;
-	GetComponents<UStaticMeshComponent>(Components);
-	if (Components[0])
-		Mesh = Components[0];
-	else
-		return;
+	
 
 	DefaultMaterial = Mesh->GetMaterial(0);
 	Mesh->SetMaterial(0, InvalidPreviewMaterial);
