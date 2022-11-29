@@ -41,6 +41,10 @@ void AGenericTrap::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 	if (!Placed) {
 		CanBePlaced = !IsOverlappingSomeone() && Player->CurrentPower >= Cost;
+		if (CanBePlaced && !CanBePlacedOnWalls)
+		{
+			CanBePlaced = GetActorUpVector().Z <= 1 && GetActorUpVector().Z >= 0.9f;
+		}
 		if (CanBePlaced)
 		{
 			Mesh->SetMaterial(0, ValidPreviewMaterial);

@@ -12,7 +12,6 @@ ATarPuddle::ATarPuddle()
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision"));
 	BoxCollider->SetupAttachment(Collider);
 	BoxCollider->SetWorldLocation(GetActorLocation());
-
 }
 
 void ATarPuddle::BeginPlay()
@@ -23,12 +22,12 @@ void ATarPuddle::BeginPlay()
 	BoxCollider->OnComponentBeginOverlap.AddDynamic(this, &ATarPuddle::BeginOverlap);
 	BoxCollider->OnComponentEndOverlap.AddDynamic(this, &ATarPuddle::EndOverlap);
 
+	CanBePlacedOnWalls = false;
 }
 
 void ATarPuddle::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
 }
 
  void ATarPuddle::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)

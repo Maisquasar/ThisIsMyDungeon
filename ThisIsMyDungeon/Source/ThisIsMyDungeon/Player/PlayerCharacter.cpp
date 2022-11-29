@@ -249,11 +249,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 		{
 			DisableTrap(true);
 		}
-		
+
 
 	}
 	//Debug("%d", CurrentPower);
-	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f)); 
+	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f));
 
 	if (_currentTime >= 5.f)
 	{
@@ -326,10 +326,10 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 		{
 			return true;
 		}
-		}
-	return false;
 	}
-	
+	return false;
+}
+
 
 void APlayerCharacter::OnTrap1()
 {
@@ -382,7 +382,7 @@ void APlayerCharacter::CheckPath()
 			}
 		}
 	}
-	
+
 }
 
 void APlayerCharacter::OnTrapSetUp()
@@ -409,7 +409,7 @@ void APlayerCharacter::OnTrapSetUp()
 		FTimerHandle Handle;
 		lastTrap->SetUp();
 		GetWorld()->GetTimerManager().SetTimer(Handle, this, &APlayerCharacter::CheckPath, 0.1f);
-		
+
 	}
 	else
 	{

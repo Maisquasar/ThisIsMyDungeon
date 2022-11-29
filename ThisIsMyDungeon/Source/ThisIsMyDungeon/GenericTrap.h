@@ -56,6 +56,7 @@ public:
 
 	bool Placed = false;
 	bool CanBePlaced = false;
+	bool CanBePlacedOnWalls = true;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Size")
 		FVector size;
