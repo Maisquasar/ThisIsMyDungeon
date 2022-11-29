@@ -249,9 +249,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 		{
 			DisableTrap(true);
 		}
-
-
 	}
+	else if (!CurrentTrap)
+		RaycastFromCamera(&hit);
 	//Debug("%d", CurrentPower);
 	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f));
 
@@ -323,13 +323,22 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	{
 		if (AEnemy* Character = Cast<AEnemy>(RV_Hit->Actor))
 		{
-			//Debug("Enemy");
+			Character->ShowLifeBar(true);
+			PreviousEnemy = Character;
 			return false;
 		}
 		else
 		{
+			if (PreviousEnemy) {
+				PreviousEnemy->ShowLifeBar(false);
+				PreviousEnemy = nullptr;
+			}
 			return true;
 		}
+	}
+	if (PreviousEnemy) {
+		PreviousEnemy->ShowLifeBar(false);
+		PreviousEnemy = nullptr;
 	}
 	return false;
 }

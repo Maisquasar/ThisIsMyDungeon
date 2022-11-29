@@ -31,8 +31,14 @@ public:
 	UPROPERTY(EditAnywhere)
 		FVector TreasureLoc;
 
-	UPROPERTY(EditAnywhere, Category = "Life")
-		int Health = 50;
+	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = "Life")
+		int MaxHealth = 50;
+
+	UPROPERTY(BlueprintReadonly);
+		int Health = 0;
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void ShowLifeBar(bool value);
 
 	float MaxSpeed;
 	// Called every frame
