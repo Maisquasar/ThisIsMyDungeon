@@ -103,9 +103,9 @@ int APlayerCharacter::GetCurrentTrapIndex()
 
 void APlayerCharacter::OnShoot()
 {
-	if (!ProjectileStart || !ProjectileClass)
+	if (!ProjectileStart || !ProjectileClass || _currentFireBallCooldown > 0)
 		return;
-
+	_currentFireBallCooldown = FireBallCooldown;
 	// Raycast Point to find hit point.
 	FHitResult Hit;
 
@@ -249,12 +249,16 @@ void APlayerCharacter::Tick(float DeltaTime)
 		{
 			DisableTrap(true);
 		}
-
-
 	}
+	else if (!CurrentTrap)
+		RaycastFromCamera(&hit);
 	//Debug("%d", CurrentPower);
 	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f));
 
+	if (_currentFireBallCooldown > 0)
+	{
+		_currentFireBallCooldown -= DeltaTime;
+	}	
 	if (_currentTime >= 5.f)
 	{
 		AddPower(10);
@@ -319,13 +323,22 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	{
 		if (AEnemy* Character = Cast<AEnemy>(RV_Hit->Actor))
 		{
-			//Debug("Enemy");
+			Character->ShowLifeBar(true);
+			PreviousEnemy = Character;
 			return false;
 		}
 		else
 		{
+			if (PreviousEnemy) {
+				PreviousEnemy->ShowLifeBar(false);
+				PreviousEnemy = nullptr;
+			}
 			return true;
 		}
+	}
+	if (PreviousEnemy) {
+		PreviousEnemy->ShowLifeBar(false);
+		PreviousEnemy = nullptr;
 	}
 	return false;
 }
@@ -367,6 +380,7 @@ void APlayerCharacter::SelectTrap(int index)
 	//if (CurrentTrap)
 		//Debug("Choose trap %d", index + 1);
 }
+
 void APlayerCharacter::CheckPath()
 {
 	for (int i = 0; i <= SpawnLoc.Num() - 1; i++)
@@ -418,8 +432,7 @@ void APlayerCharacter::OnTrapSetUp()
 		auto trap = GetWorld()->SpawnActor<AGenericTrap>(CurrentTrap->GetClass(), CurrentTrap->GetActorLocation(), CurrentTrap->GetActorRotation());
 		trap->SetUp();
 	}
-	CurrentTrap->Destroy();
-	CurrentTrap = nullptr;
+	
 }
 
 void APlayerCharacter::OnCancelTrap()

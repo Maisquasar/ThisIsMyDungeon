@@ -27,6 +27,8 @@ private:
 	UPROPERTY(EditAnywhere)
 		class AGenericTrap* lastTrap;
 
+	class AEnemy* PreviousEnemy;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
@@ -44,6 +46,7 @@ private:
 
 	float _currentTime = 0;
 
+	float _currentFireBallCooldown;
 protected:
 	virtual void BeginPlay() override;
 
@@ -98,18 +101,22 @@ public:
 		float BaseLookUpRate;
 
 	// Life
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Life)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Life)
 		int MaxLife = 100;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Life)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Life)
 		int CurrentLife = 0;
 
 	// Power
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Power)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Power)
 		int CurrentPower = 0;
 
 	UPROPERTY(EditAnywhere, Category = Power)
 		int StartingPower = 800;
+
+
+	UPROPERTY(EditAnywhere)
+		float FireBallCooldown = 1;
 
 	// Projectiles
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
