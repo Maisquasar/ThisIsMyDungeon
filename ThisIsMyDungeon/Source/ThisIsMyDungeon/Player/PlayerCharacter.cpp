@@ -208,7 +208,7 @@ void APlayerCharacter::LookUpAtRate(float Rate)
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 
 
 	
@@ -245,7 +245,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
 				snappedPos.Z += hit.Location.Z > 0 ? gridSizeX : -gridSizeX;
 			}
-		
+
 
 			// TO CHANGE
 			FVector res = snappedPos + hit.Normal * CurrentTrap->size.Z;
@@ -258,6 +258,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 			DisableTrap(true);
 		}
 		
+
 	}
 	
 	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f)); 

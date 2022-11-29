@@ -33,6 +33,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "Life")
 		int Health = 50;
+
+	float MaxSpeed;
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
