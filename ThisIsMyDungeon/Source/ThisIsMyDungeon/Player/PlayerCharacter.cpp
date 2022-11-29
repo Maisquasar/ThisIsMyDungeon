@@ -371,6 +371,7 @@ void APlayerCharacter::SelectTrap(int index)
 	//if (CurrentTrap)
 		//Debug("Choose trap %d", index + 1);
 }
+
 void APlayerCharacter::CheckPath()
 {
 	for (int i = 0; i <= SpawnLoc.Num() - 1; i++)
@@ -422,8 +423,7 @@ void APlayerCharacter::OnTrapSetUp()
 		auto trap = GetWorld()->SpawnActor<AGenericTrap>(CurrentTrap->GetClass(), CurrentTrap->GetActorLocation(), CurrentTrap->GetActorRotation());
 		trap->SetUp();
 	}
-	CurrentTrap->Destroy();
-	CurrentTrap = nullptr;
+	
 }
 
 void APlayerCharacter::OnCancelTrap()
