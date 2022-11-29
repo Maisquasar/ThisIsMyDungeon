@@ -48,7 +48,7 @@ void ASpawner::SpawnEnemy()
 
 	if(numberOfSpawn > Actor)
 	{
-		GetWorld()->GetTimerManager().SetTimer(Handle, this, &ASpawner::SpawnEnemy, 1.f);
+		GetWorld()->GetTimerManager().SetTimer(Handle, this, &ASpawner::SpawnEnemy, 7.f);
 	}
 	
 }

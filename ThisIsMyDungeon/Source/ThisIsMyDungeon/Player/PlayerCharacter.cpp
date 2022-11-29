@@ -103,9 +103,9 @@ int APlayerCharacter::GetCurrentTrapIndex()
 
 void APlayerCharacter::OnShoot()
 {
-	if (!ProjectileStart || !ProjectileClass)
+	if (!ProjectileStart || !ProjectileClass || _currentFireBallCooldown > 0)
 		return;
-
+	_currentFireBallCooldown = FireBallCooldown;
 	// Raycast Point to find hit point.
 	FHitResult Hit;
 
@@ -209,15 +209,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
-
-	
-
-
 	if (CurrentTrap && !CurrentTrap->Placed)
 	{
-		
-
 		if (RaycastFromCamera(&hit))
 		{
 			if (TrapHidden)
@@ -226,24 +219,23 @@ void APlayerCharacter::Tick(float DeltaTime)
 			}
 			FVector snappedPos = hit.Location;
 			float wholePart;
-			float gridSizeX = modff(CurrentTrap->size.X / 100.f, &wholePart) * 100.f;
-			float gridSizeY = modff(CurrentTrap->size.Y / 100.f, &wholePart) * 100.f;
+			float gridSize = modff(CurrentTrap->size.X / 100.f, &wholePart) * 100.f;
 
 
 			if (fabsf(hit.Normal.X) < 0.9f)
 			{
 				snappedPos.X -= modff(snappedPos.X / 100.f, &wholePart) * 100.f;
-				snappedPos.X += hit.Location.X > 0 ? gridSizeX : -gridSizeX;
+				snappedPos.X += hit.Location.X > 0 ? gridSize : -gridSize;
 			}
 			if (fabsf(hit.Normal.Y) < 0.9f)
 			{
 				snappedPos.Y -= modff(snappedPos.Y / 100.f, &wholePart) * 100.f;
-				snappedPos.Y += hit.Location.Y > 0 ? gridSizeY : -gridSizeY;
+				snappedPos.Y += hit.Location.Y > 0 ? gridSize : -gridSize;
 			}
 			if (fabsf(hit.Normal.Z) < 0.9f)
 			{
 				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
-				snappedPos.Z += hit.Location.Z > 0 ? gridSizeX : -gridSizeX;
+				snappedPos.Z += hit.Location.Z > 0 ? gridSize : -gridSize;
 			}
 
 
@@ -257,12 +249,16 @@ void APlayerCharacter::Tick(float DeltaTime)
 		{
 			DisableTrap(true);
 		}
-		
+
 
 	}
-	
-	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f)); 
+	//Debug("%d", CurrentPower);
+	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f));
 
+	if (_currentFireBallCooldown > 0)
+	{
+		_currentFireBallCooldown -= DeltaTime;
+	}	
 	if (_currentTime >= 5.f)
 	{
 		AddPower(10);
@@ -327,17 +323,17 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	{
 		if (AEnemy* Character = Cast<AEnemy>(RV_Hit->Actor))
 		{
-			Debug("Enemy");
+			//Debug("Enemy");
 			return false;
 		}
 		else
 		{
 			return true;
 		}
-		}
-	return false;
 	}
-	
+	return false;
+}
+
 
 void APlayerCharacter::OnTrap1()
 {
@@ -367,13 +363,13 @@ void APlayerCharacter::SelectTrap(int index)
 		CurrentTrap->Destroy();
 	if (!TrapsBlueprint[index])
 	{
-		DebugError("Missing Trap Blueprint %d", index);
+		//DebugError("Missing Trap Blueprint %d", index);
 		return;
 	}
 
 	CurrentTrap = Cast<AGenericTrap>(GetWorld()->SpawnActor(TrapsBlueprint[index]));
-	if (CurrentTrap)
-		Debug("Choose trap %d", index + 1);
+	//if (CurrentTrap)
+		//Debug("Choose trap %d", index + 1);
 }
 void APlayerCharacter::CheckPath()
 {
@@ -386,11 +382,11 @@ void APlayerCharacter::CheckPath()
 			{
 				lastTrap->Destroy();
 				CurrentPower += lastTrap->Cost;
-				Debug("Blocked");
+				//Debug("Blocked");
 			}
 		}
 	}
-	
+
 }
 
 void APlayerCharacter::OnTrapSetUp()
@@ -403,7 +399,7 @@ void APlayerCharacter::OnTrapSetUp()
 	if (normal == FVector(0, 0, 0))
 	{
 		// raycast hit nothing
-		Debug("None");
+		//Debug("None");
 
 		return;
 	}
@@ -412,17 +408,17 @@ void APlayerCharacter::OnTrapSetUp()
 	if (normal.Z > 0.9f)
 	{
 		// raycast hit the ground
-		Debug("Ground");
+		//Debug("Ground");
 		lastTrap = GetWorld()->SpawnActor<AGenericTrap>(CurrentTrap->GetClass(), CurrentTrap->GetActorLocation(), CurrentTrap->GetActorRotation());
 		FTimerHandle Handle;
 		lastTrap->SetUp();
 		GetWorld()->GetTimerManager().SetTimer(Handle, this, &APlayerCharacter::CheckPath, 0.1f);
-		
+
 	}
 	else
 	{
 		// raycast hit a wall
-		Debug("Wall");
+		//Debug("Wall");
 		auto trap = GetWorld()->SpawnActor<AGenericTrap>(CurrentTrap->GetClass(), CurrentTrap->GetActorLocation(), CurrentTrap->GetActorRotation());
 		trap->SetUp();
 	}
