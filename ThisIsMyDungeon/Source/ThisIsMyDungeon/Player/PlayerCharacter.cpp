@@ -268,6 +268,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 		_currentTime = 0;
 	}
 	_currentTime += DeltaTime;
+
+	if (isFiring) OnShoot();
 }
 
 
@@ -291,7 +293,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &APlayerCharacter::OnShoot);
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &APlayerCharacter::OnShootButtonPressed);
+	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &APlayerCharacter::OnShootButtonReleased);
 
 	PlayerInputComponent->BindAction("SetUpTrap", IE_Pressed, this, &APlayerCharacter::OnTrapSetUp);
 	PlayerInputComponent->BindAction("CancelTrap", IE_Pressed, this, &APlayerCharacter::OnCancelTrap);
@@ -432,7 +435,7 @@ void APlayerCharacter::OnTrapSetUp()
 		return;
 	}
 
-	//CurrentPower -= CurrentTrap->Cost;
+	CurrentPower -= CurrentTrap->Cost;
 	if (normal.Z > 0.9f)
 	{
 		// raycast hit the ground

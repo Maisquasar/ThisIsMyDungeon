@@ -42,6 +42,11 @@ private:
 
 	bool TrapHidden = false;
 
+	bool isFiring = false;
+
+	void OnShootButtonPressed() { isFiring = true; }
+	void OnShootButtonReleased() { isFiring = false; }
+
 	FHitResult hit;
 
 	float _currentTime = 0;
@@ -119,7 +124,7 @@ public:
 
 
 	UPROPERTY(EditAnywhere)
-		float FireBallCooldown = 1;
+		float FireBallCooldown = 0.3f;
 
 	FRotator TrapRotation = FRotator::ZeroRotator;
 

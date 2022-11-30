@@ -12,6 +12,7 @@ ATarPuddle::ATarPuddle()
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision"));
 	BoxCollider->SetupAttachment(Collider);
 	BoxCollider->SetWorldLocation(GetActorLocation());
+	Cost = 100;
 }
 
 void ATarPuddle::BeginPlay()
