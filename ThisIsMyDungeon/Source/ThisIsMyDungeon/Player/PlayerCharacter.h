@@ -83,6 +83,9 @@ protected:
 
 	void StartWave();
 
+	void RotatePlus();
+	void RotateMinus();
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
 	APlayerCharacter();
@@ -117,6 +120,8 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		float FireBallCooldown = 1;
+
+	FRotator TrapRotation = FRotator::ZeroRotator;
 
 	// Projectiles
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
