@@ -108,13 +108,16 @@ void APlayerCharacter::OnShoot()
 	_currentFireBallCooldown = FireBallCooldown;
 	// Raycast Point to find hit point.
 	FHitResult Hit;
-
+	AFireBall* fireball = nullptr;
 	RaycastFromCamera(&Hit, 600000);
 	if (Hit.bBlockingHit) {
-		GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), (Hit.Location - ProjectileStart->GetComponentLocation()).ToOrientationRotator());
+		fireball = GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), (Hit.Location - ProjectileStart->GetComponentLocation()).ToOrientationRotator());
 	}
 	else
-		GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), FollowCamera->GetForwardVector().ToOrientationRotator());
+		fireball = GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), FollowCamera->GetForwardVector().ToOrientationRotator());
+	if (fireball)
+		fireball->EnemyToFollow = PreviousEnemy;
+
 }
 
 void APlayerCharacter::ApplyDamage(int Damage)

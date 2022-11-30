@@ -6,6 +6,7 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/SphereComponent.h"
 #include "../Enemy/Enemy.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 AFireBall::AFireBall()
@@ -21,6 +22,12 @@ AFireBall::AFireBall()
 	}
 
 	ProjectileMovementComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileMovementComponent"));
+	ProjectileMovementComponent->InitialSpeed = 600;
+	ProjectileMovementComponent->MaxSpeed = 600;
+	ProjectileMovementComponent->bRotationFollowsVelocity = true;
+	ProjectileMovementComponent->bIsHomingProjectile = true;
+	ProjectileMovementComponent->HomingAccelerationMagnitude = 1200;
+	ProjectileMovementComponent->ProjectileGravityScale = 0.f;
 }
 
 // Called when the game starts or when spawned
@@ -45,6 +52,14 @@ void AFireBall::BeginPlay()
 void AFireBall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (EnemyToFollow && !foundComponent)
+	{
+		foundComponent = true;
+		ProjectileMovementComponent->HomingTargetComponent = EnemyToFollow->GetRootComponent();
+		Debug("test");
+	}
+
 	if (CurrentTime > 0)
 	{
 		CurrentTime -= DeltaTime;
@@ -58,7 +73,8 @@ void AFireBall::Tick(float DeltaTime)
 
 void AFireBall::OnCollision(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
 {
-	Destroy();
+	if (OtherActor->GetClass() != this->GetClass())
+		Destroy();
 	if (auto Enemy = Cast<AEnemy>(OtherActor))
 	{
 		int damage = BaseDamage;
