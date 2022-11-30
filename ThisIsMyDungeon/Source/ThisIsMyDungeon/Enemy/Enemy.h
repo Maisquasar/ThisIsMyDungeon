@@ -37,6 +37,9 @@ public:
 	UPROPERTY(BlueprintReadonly);
 		int Health = 0;
 
+	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = "Damage")
+		int damageToTreasure = 5;
+
 	UFUNCTION(BlueprintImplementableEvent)
 		void ShowLifeBar(bool value);
 

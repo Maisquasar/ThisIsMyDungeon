@@ -44,13 +44,13 @@ void AEnemyController::OnPossess(APawn* InPawn)
 	{
 		BBC->SetValueAsVector("GoToLocation", treasure->GetActorLocation());
 	}
-
+	Debug("%.1f, %.1f, %.1f", treasure->GetActorLocation().X, treasure->GetActorLocation().Y, treasure->GetActorLocation().Z);
 	
 }
 
 void AEnemyController::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	treasure = nullptr;
 
 }

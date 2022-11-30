@@ -71,6 +71,7 @@ protected:
 
 	void OnCancelTrap();
 
+	UFUNCTION(BlueprintCallable)
 	void ApplyDamage(int Damage);
 
 	void DisableTrap(bool);
