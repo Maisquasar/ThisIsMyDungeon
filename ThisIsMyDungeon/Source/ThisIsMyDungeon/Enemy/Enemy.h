@@ -54,4 +54,7 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void NewWidgetAnim(FVector pos, int Damage);
+
+	UPROPERTY(BlueprintReadonly);
+	float HideLifeBarCooldown = 0;
 };

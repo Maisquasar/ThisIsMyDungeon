@@ -8,12 +8,15 @@
 #include "../DebugString.hpp"
 #include "../Player/PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+#include "Runtime/Engine/Public/TimerManager.h"
 
 // Sets default values
 AEnemy::AEnemy()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true; 
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 // Called when the game starts or when spawned
@@ -30,6 +33,15 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	//UNavigationSystemV1::TestPathSync()
+	if (HideLifeBarCooldown > 0)
+	{
+		HideLifeBarCooldown -= DeltaTime;
+	}
+	else if (HideLifeBarCooldown > -1 && HideLifeBarCooldown <= 0)
+	{
+		HideLifeBarCooldown = -1;
+		this->ShowLifeBar(false);
+	}
 }
 
 // Called to bind functionality to input
@@ -42,6 +54,8 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AEnemy::ApplyDamage(int Damage)
 {
 	Health -= Damage;
+	this->ShowLifeBar(true);
+	HideLifeBarCooldown = 2.f;
 	if (Health <= 0)
 	{
 		ADungeonGameMode* GM = Cast<ADungeonGameMode>(UGameplayStatics::GetGameMode(this));
