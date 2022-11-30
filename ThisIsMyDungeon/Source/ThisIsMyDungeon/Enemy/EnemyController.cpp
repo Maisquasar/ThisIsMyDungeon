@@ -38,13 +38,11 @@ void AEnemyController::OnPossess(APawn* InPawn)
 			treasure = treasures[0];
 			BBC->SetValueAsVector("GoToLocation", treasures[0]->GetActorLocation());
 		}
-		Debug("Find treasure");
 	}
 	else
 	{
 		BBC->SetValueAsVector("GoToLocation", treasure->GetActorLocation());
 	}
-	Debug("%.1f, %.1f, %.1f", treasure->GetActorLocation().X, treasure->GetActorLocation().Y, treasure->GetActorLocation().Z);
 	
 }
 

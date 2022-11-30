@@ -108,13 +108,16 @@ void APlayerCharacter::OnShoot()
 	_currentFireBallCooldown = FireBallCooldown;
 	// Raycast Point to find hit point.
 	FHitResult Hit;
-
+	AFireBall* fireball = nullptr;
 	RaycastFromCamera(&Hit, 600000);
 	if (Hit.bBlockingHit) {
-		GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), (Hit.Location - ProjectileStart->GetComponentLocation()).ToOrientationRotator());
+		fireball = GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), (Hit.Location - ProjectileStart->GetComponentLocation()).ToOrientationRotator());
 	}
 	else
-		GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), FollowCamera->GetForwardVector().ToOrientationRotator());
+		fireball = GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), FollowCamera->GetForwardVector().ToOrientationRotator());
+	if (fireball)
+		fireball->EnemyToFollow = PreviousEnemy;
+
 }
 
 void APlayerCharacter::ApplyDamage(int Damage)
@@ -318,7 +321,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
-bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
+bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance, ECollisionChannel collisionType)
 {
 	if (Controller == NULL) { return false; }
 
@@ -339,7 +342,7 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	FHitResult Hit;
 	auto StartLocation = pos;
 	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * MaxDistance);
-	if (GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams))
+	if (GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, collisionType, RV_TraceParams))
 	{
 		if (AEnemy* Character = Cast<AEnemy>(RV_Hit->Actor))
 		{
@@ -458,8 +461,22 @@ void APlayerCharacter::OnTrapSetUp()
 
 void APlayerCharacter::OnCancelTrap()
 {
-	if (!CurrentTrap) return;
-	CurrentTrap->Destroy();
-	CurrentTrap = nullptr;
+	FHitResult tempHit;
+	if (!CurrentTrap) {
+		if (RaycastFromCamera(&tempHit, 10000000.F, ECollisionChannel::ECC_MAX))
+		{
+			//Debug("%s", *tempHit.GetActor()->GetName());
+			if (auto trap = Cast<AGenericTrap>(tempHit.Actor))
+			{
+				this->CurrentPower += trap->Cost / 2;
+				trap->Destroy();
+			}
+		}
+	}
+	else
+	{
+		CurrentTrap->Destroy();
+		CurrentTrap = nullptr;
+	}
 }
 

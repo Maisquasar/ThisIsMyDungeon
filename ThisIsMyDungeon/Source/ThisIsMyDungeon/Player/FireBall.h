@@ -12,10 +12,13 @@ class THISISMYDUNGEON_API AFireBall : public AActor
 	GENERATED_BODY()
 
 	float CurrentTime;
+
 	
 public:	
 	// Sets default values for this actor's properties
 	AFireBall();
+
+	class AEnemy* EnemyToFollow;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UProjectileMovementComponent* ProjectileMovementComponent;
@@ -39,6 +42,8 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;	
+
+	bool foundComponent = false;
 	
 
 };
