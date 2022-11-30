@@ -37,11 +37,7 @@ void AGenericTrap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	if (!Placed) {
-		CanBePlaced = !IsOverlappingSomeone() && Player->CurrentPower >= Cost;
-		if (CanBePlaced && !CanBePlacedOnWalls)
-		{
-			CanBePlaced = GetActorUpVector().Z <= 1 && GetActorUpVector().Z >= 0.9f;
-		}
+		CanBePlacedCheck();
 		if (CanBePlaced)
 		{
 			Mesh->SetMaterial(0, ValidPreviewMaterial);
@@ -56,6 +52,15 @@ void AGenericTrap::Tick(float DeltaTime)
 FVector AGenericTrap::GetBoxColliderSize()
 {
 	return Collider->GetScaledBoxExtent();
+}
+
+void AGenericTrap::CanBePlacedCheck()
+{
+	CanBePlaced = !IsOverlappingSomeone() && Player->CurrentPower >= Cost;
+	if (CanBePlaced && !CanBePlacedOnWalls)
+	{
+		CanBePlaced = GetActorUpVector().Z <= 1 && GetActorUpVector().Z >= 0.9f;
+	}
 }
 
 void AGenericTrap::SetUp()

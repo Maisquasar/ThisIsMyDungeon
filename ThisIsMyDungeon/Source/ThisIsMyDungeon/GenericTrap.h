@@ -47,6 +47,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		bool IsOverlappingSomeone();
 
+	void CanBePlacedCheck();
+
 	void SetUp();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Index")
