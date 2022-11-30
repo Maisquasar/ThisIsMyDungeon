@@ -16,6 +16,7 @@ ASeasawTrap::ASeasawTrap()
 	seasawColComp->SetupAttachment(seasawMeshComp);
 	seasawColComp->SetHiddenInGame(false);
 	seasawColComp->OnComponentBeginOverlap.AddDynamic(this, &ASeasawTrap::OnSeasawColliderBeginOverlap);
+	Cost = 500;
 }
 
 void ASeasawTrap::BeginPlay()
