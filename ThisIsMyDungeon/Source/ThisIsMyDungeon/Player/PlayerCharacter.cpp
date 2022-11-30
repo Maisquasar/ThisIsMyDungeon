@@ -321,7 +321,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
-bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
+bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance, ECollisionChannel collisionType)
 {
 	if (Controller == NULL) { return false; }
 
@@ -342,7 +342,7 @@ bool APlayerCharacter::RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance)
 	FHitResult Hit;
 	auto StartLocation = pos;
 	auto EndLocation = StartLocation + (FollowCamera->GetForwardVector() * MaxDistance);
-	if (GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, ECollisionChannel::ECC_WorldStatic, RV_TraceParams))
+	if (GetWorld()->LineTraceSingleByChannel(*RV_Hit, StartLocation, EndLocation, collisionType, RV_TraceParams))
 	{
 		if (AEnemy* Character = Cast<AEnemy>(RV_Hit->Actor))
 		{
@@ -461,8 +461,22 @@ void APlayerCharacter::OnTrapSetUp()
 
 void APlayerCharacter::OnCancelTrap()
 {
-	if (!CurrentTrap) return;
-	CurrentTrap->Destroy();
-	CurrentTrap = nullptr;
+	FHitResult tempHit;
+	if (!CurrentTrap) {
+		if (RaycastFromCamera(&tempHit, 10000000.F, ECollisionChannel::ECC_MAX))
+		{
+			//Debug("%s", *tempHit.GetActor()->GetName());
+			if (auto trap = Cast<AGenericTrap>(tempHit.Actor))
+			{
+				this->CurrentPower += trap->Cost / 2;
+				trap->Destroy();
+			}
+		}
+	}
+	else
+	{
+		CurrentTrap->Destroy();
+		CurrentTrap = nullptr;
+	}
 }
 

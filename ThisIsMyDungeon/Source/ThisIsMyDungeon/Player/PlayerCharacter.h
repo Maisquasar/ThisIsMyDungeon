@@ -38,7 +38,7 @@ private:
 	
 	FTransform MeshRelativeTransform;
 
-	bool RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance = 1000.f);
+	bool RaycastFromCamera(FHitResult* RV_Hit, float MaxDistance = 1000.f, ECollisionChannel collisionType = ECollisionChannel::ECC_WorldStatic);
 
 	bool TrapHidden = false;
 
