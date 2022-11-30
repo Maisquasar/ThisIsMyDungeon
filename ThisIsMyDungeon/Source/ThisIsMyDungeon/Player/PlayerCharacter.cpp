@@ -234,6 +234,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 			}
 			if (fabsf(hit.Normal.Z) < 0.9f)
 			{
+				TrapRotation = FRotator::ZeroRotator;
 				snappedPos.Z -= modff(snappedPos.Z / 100.f, &wholePart) * 100.f;
 				snappedPos.Z += hit.Location.Z > 0 ? gridSize : -gridSize;
 			}
@@ -242,7 +243,9 @@ void APlayerCharacter::Tick(float DeltaTime)
 			// TO CHANGE
 			FVector res = snappedPos + hit.Normal * CurrentTrap->size.Z;
 			CurrentTrap->SetActorLocation(res);
-			FRotator rot = FRotationMatrix::MakeFromZ(hit.Normal).Rotator();
+			auto rot = FRotationMatrix::MakeFromZ(hit.Normal).Rotator();
+			TrapRotation = TrapRotation.Clamp();
+			rot = rot + TrapRotation;
 			CurrentTrap->SetActorRotation(rot);
 		}
 		else
@@ -252,21 +255,35 @@ void APlayerCharacter::Tick(float DeltaTime)
 	}
 	else if (!CurrentTrap)
 		RaycastFromCamera(&hit);
-	//Debug("%d", CurrentPower);
+
 	this->SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), FRotator::MakeFromEuler(FVector(GetActorRotation().Euler().X, GetActorRotation().Euler().Y, FollowCamera->GetComponentRotation().Euler().Z)), DeltaTime, 5.f));
 
 	if (_currentFireBallCooldown > 0)
 	{
 		_currentFireBallCooldown -= DeltaTime;
-	}	
+	}
 	if (_currentTime >= 5.f)
 	{
 		AddPower(10);
 		_currentTime = 0;
 	}
 	_currentTime += DeltaTime;
+
+	if (isFiring) OnShoot();
 }
 
+
+void APlayerCharacter::RotatePlus()
+{
+	if (!CurrentTrap) return;
+	TrapRotation = TrapRotation + FRotator::MakeFromEuler(FVector(0, 0, -90));
+}
+
+void APlayerCharacter::RotateMinus()
+{
+	if (!CurrentTrap) return;
+	TrapRotation = TrapRotation + FRotator::MakeFromEuler(FVector(0, 0, 90));
+}
 
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -276,7 +293,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &APlayerCharacter::OnShoot);
+	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &APlayerCharacter::OnShootButtonPressed);
+	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &APlayerCharacter::OnShootButtonReleased);
 
 	PlayerInputComponent->BindAction("SetUpTrap", IE_Pressed, this, &APlayerCharacter::OnTrapSetUp);
 	PlayerInputComponent->BindAction("CancelTrap", IE_Pressed, this, &APlayerCharacter::OnCancelTrap);
@@ -295,6 +313,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
+	PlayerInputComponent->BindAction("RotatePlus", IE_Pressed, this, &APlayerCharacter::RotatePlus);
+	PlayerInputComponent->BindAction("RotateMinus", IE_Pressed, this, &APlayerCharacter::RotateMinus);
 
 }
 
@@ -404,6 +424,7 @@ void APlayerCharacter::OnTrapSetUp()
 	FVector normal = hit.Normal;
 	//Debug("%.2f, %.2f, %.2f", normal.X, normal.Y, normal.Z);
 	if (!CurrentTrap) return;
+	CurrentTrap->CanBePlacedCheck();
 	if (!CurrentTrap->CanBePlaced) return;
 
 	if (normal == FVector(0, 0, 0))
@@ -432,7 +453,7 @@ void APlayerCharacter::OnTrapSetUp()
 		auto trap = GetWorld()->SpawnActor<AGenericTrap>(CurrentTrap->GetClass(), CurrentTrap->GetActorLocation(), CurrentTrap->GetActorRotation());
 		trap->SetUp();
 	}
-	
+
 }
 
 void APlayerCharacter::OnCancelTrap()

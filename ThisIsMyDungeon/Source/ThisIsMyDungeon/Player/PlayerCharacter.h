@@ -42,6 +42,11 @@ private:
 
 	bool TrapHidden = false;
 
+	bool isFiring = false;
+
+	void OnShootButtonPressed() { isFiring = true; }
+	void OnShootButtonReleased() { isFiring = false; }
+
 	FHitResult hit;
 
 	float _currentTime = 0;
@@ -83,6 +88,9 @@ protected:
 
 	void StartWave();
 
+	void RotatePlus();
+	void RotateMinus();
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
 	APlayerCharacter();
@@ -116,7 +124,9 @@ public:
 
 
 	UPROPERTY(EditAnywhere)
-		float FireBallCooldown = 1;
+		float FireBallCooldown = 0.3f;
+
+	FRotator TrapRotation = FRotator::ZeroRotator;
 
 	// Projectiles
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
