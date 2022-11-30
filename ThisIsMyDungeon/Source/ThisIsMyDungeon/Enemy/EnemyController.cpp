@@ -6,7 +6,10 @@
 #include "Enemy.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "../DebugString.hpp"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
+
+AActor* AEnemyController::treasure = nullptr;
 
 AEnemyController::AEnemyController(const FObjectInitializer& ObjectInitializer)
 {
@@ -26,13 +29,22 @@ void AEnemyController::OnPossess(APawn* InPawn)
 		BTC->StartTree(*Chr->TreeAsset);
 	}
 
-	TArray<AActor*> treasure;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Treasure"), treasure);
-	if (treasure.Num() > 0)
+	if (!treasure)
 	{
-
-		BBC->SetValueAsVector("GoToLocation", treasure[0]->GetActorLocation());
+		TArray<AActor*> treasures;
+		UGameplayStatics::GetAllActorsWithTag(GetWorld(), TEXT("Treasure"), treasures);
+		if (treasures.Num() > 0)
+		{
+			treasure = treasures[0];
+			BBC->SetValueAsVector("GoToLocation", treasures[0]->GetActorLocation());
+		}
+		Debug("Find treasure");
 	}
+	else
+	{
+		BBC->SetValueAsVector("GoToLocation", treasure->GetActorLocation());
+	}
+
 	
 }
 

@@ -27,4 +27,7 @@ public:
 	//Blackbard Ids
 	uint8 GoToLocationId;
 	
+
+	static AActor* treasure;
 };
+
