@@ -435,7 +435,7 @@ void APlayerCharacter::OnTrapSetUp()
 		return;
 	}
 
-	//CurrentPower -= CurrentTrap->Cost;
+	CurrentPower -= CurrentTrap->Cost;
 	if (normal.Z > 0.9f)
 	{
 		// raycast hit the ground

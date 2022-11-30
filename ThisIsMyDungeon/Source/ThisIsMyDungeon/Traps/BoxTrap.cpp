@@ -7,7 +7,7 @@
 
 ABoxTrap::ABoxTrap()
 {
-
+	Cost = 200;
 }
 
 void ABoxTrap::BeginPlay()

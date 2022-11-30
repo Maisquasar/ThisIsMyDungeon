@@ -18,7 +18,7 @@ APileThrowerTrap::APileThrowerTrap()
 	BoxCollider->SetupAttachment(Collider);
 	BoxCollider->SetWorldLocation(GetActorLocation());
 	
-
+	Cost = 200;
 }
 
 void APileThrowerTrap::BeginPlay()
