@@ -32,7 +32,7 @@ public:
 		FVector TreasureLoc;
 
 	UPROPERTY(EditAnywhere, BlueprintReadonly, Category = "Life")
-		int MaxHealth = 50;
+		int MaxHealth = 100;
 
 	UPROPERTY(BlueprintReadonly);
 		int Health = 0;
