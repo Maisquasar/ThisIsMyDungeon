@@ -44,6 +44,8 @@ private:
 
 	bool isFiring = false;
 
+	bool IsInAnimation = false;
+
 	void OnShootButtonPressed() { isFiring = true; }
 	void OnShootButtonReleased() { isFiring = false; }
 
@@ -52,6 +54,8 @@ private:
 	float _currentTime = 0;
 
 	float _currentFireBallCooldown;
+
+	bool inputsEnable = false;
 protected:
 	virtual void BeginPlay() override;
 
@@ -66,6 +70,10 @@ protected:
 	void OnJump();
 
 	void OnShoot();
+
+	void Shoot();
+
+	void ResetRotation();
 
 	void OnTrapSetUp();
 
@@ -88,6 +96,8 @@ protected:
 	void CheckPath();
 
 	void StartWave();
+
+	void EnablePlayerInputs();
 
 	void RotatePlus();
 	void RotateMinus();
@@ -138,4 +148,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Trap")
 		TArray<TSubclassOf<class AGenericTrap>> TrapsBlueprint;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations")
+		UAnimMontage* ShootAnimation;
 };
