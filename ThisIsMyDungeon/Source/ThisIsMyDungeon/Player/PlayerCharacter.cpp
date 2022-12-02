@@ -90,6 +90,14 @@ void APlayerCharacter::BeginPlay()
 	}
 	PlayerSpawn = GetActorLocation();
 
+	inputsEnable = false;
+	FTimerHandle _;
+	GetWorldTimerManager().SetTimer(_, this, &APlayerCharacter::EnablePlayerInputs, 5.f, false);
+}
+
+void APlayerCharacter::EnablePlayerInputs()
+{
+	inputsEnable = true;
 }
 
 void APlayerCharacter::OnJump()
@@ -105,6 +113,7 @@ void APlayerCharacter::OnShoot()
 {
 	if (!ProjectileStart || !ProjectileClass || _currentFireBallCooldown > 0)
 		return;
+	float duration = GetMesh()->GetAnimInstance()->Montage_Play(ShootAnimation);
 	_currentFireBallCooldown = FireBallCooldown;
 	// Raycast Point to find hit point.
 	FHitResult Hit;
@@ -117,7 +126,12 @@ void APlayerCharacter::OnShoot()
 		fireball = GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), FollowCamera->GetForwardVector().ToOrientationRotator());
 	if (fireball)
 		fireball->EnemyToFollow = PreviousEnemy;
+}
 
+
+
+void APlayerCharacter::ResetRotation()
+{
 }
 
 void APlayerCharacter::ApplyDamage(int Damage)
@@ -170,6 +184,8 @@ void APlayerCharacter::StartWave()
 
 void APlayerCharacter::MoveForward(float Value)
 {
+	if (!inputsEnable)
+		return;
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is forward
@@ -184,6 +200,8 @@ void APlayerCharacter::MoveForward(float Value)
 
 void APlayerCharacter::MoveRight(float Value)
 {
+	if (!inputsEnable)
+		return;
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
 		// find out which way is right
@@ -199,11 +217,15 @@ void APlayerCharacter::MoveRight(float Value)
 
 void APlayerCharacter::TurnAtRate(float Rate)
 {
+	if (!inputsEnable)
+		return;
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void APlayerCharacter::LookUpAtRate(float Rate)
 {
+	if (!inputsEnable)
+		return;
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
 

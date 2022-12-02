@@ -40,11 +40,18 @@ void AGenericTrap::Tick(float DeltaTime)
 		CanBePlacedCheck();
 		if (CanBePlaced)
 		{
-			Mesh->SetMaterial(0, ValidPreviewMaterial);
+			for (int i = 0; i < Mesh->GetMaterials().Num(); i++)
+			{
+				Mesh->SetMaterial(i, ValidPreviewMaterial);
+			}
+			
 		}
 		else
 		{
-			Mesh->SetMaterial(0, InvalidPreviewMaterial);
+			for (int i = 0; i < Mesh->GetMaterials().Num(); i++)
+			{
+				Mesh->SetMaterial(i, InvalidPreviewMaterial);
+			}
 		}
 	}
 }
