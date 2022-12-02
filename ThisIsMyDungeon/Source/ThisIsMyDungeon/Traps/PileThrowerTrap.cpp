@@ -32,7 +32,7 @@ void APileThrowerTrap::BeginPlay()
 
 	NiagaraComp = UNiagaraFunctionLibrary::SpawnSystemAttached(ArrowTrailEffect, Collider, NAME_None, FVector(0.f), GetActorRotation() - FRotator(90), EAttachLocation::Type::KeepRelativeOffset, true);
 	
-	//NiagaraComp->SetVisibility(false);
+	NiagaraComp->SetVisibility(false);
 	
 	//if (NiagaraComp)
 	//{
