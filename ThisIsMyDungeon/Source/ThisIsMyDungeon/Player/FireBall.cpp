@@ -57,7 +57,6 @@ void AFireBall::Tick(float DeltaTime)
 	{
 		foundComponent = true;
 		ProjectileMovementComponent->HomingTargetComponent = EnemyToFollow->GetRootComponent();
-		Debug("test");
 	}
 
 	if (CurrentTime > 0)
