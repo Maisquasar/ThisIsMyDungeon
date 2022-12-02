@@ -33,6 +33,7 @@ void ADungeonGameMode::BeginPlay()
 void ADungeonGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	//Debug("%d", counterEnemy);
 }
 
 void ADungeonGameMode::StartWaveGM()
@@ -45,11 +46,10 @@ void ADungeonGameMode::StartWaveGM()
 		{
 			for (int j = 0; j <= Spawners[i]->ArrayOfWaves.Num() - 1; j++)
 			{
-				Debug("%d", Spawners[i]->ArrayOfWaves[j]);
+				//Debug("%d", Spawners[i]->ArrayOfWaves[j]);
 				if(Spawners[i]->ArrayOfWaves[j] == currentWave)
 				{
 					Spawners[i]->SpawnEnemy();
-					counterEnemy += Spawners[i]->spawnNumberEnemy;
 				}
 			}
 		}
@@ -71,7 +71,6 @@ void ADungeonGameMode::TimeWaveGM()
 			if(Spawners[i]->ArrayOfTimeWaves[j] == currentWave)
 			{
 				Spawners[i]->SpawnEnemy();
-				counterEnemy += Spawners[i]->spawnNumberEnemy;
 			}
 		}
 	}
