@@ -128,9 +128,7 @@ void APlayerCharacter::OnShoot()
 		fireball->EnemyToFollow = PreviousEnemy;
 }
 
-void APlayerCharacter::Shoot()
-{
-}
+
 
 void APlayerCharacter::ResetRotation()
 {

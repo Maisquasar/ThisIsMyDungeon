@@ -74,7 +74,6 @@ protected:
 
 	void OnShoot();
 
-	void Shoot();
 
 	void ResetRotation();
 

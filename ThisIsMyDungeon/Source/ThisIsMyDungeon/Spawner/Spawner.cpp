@@ -5,6 +5,7 @@
 #include "Runtime/Engine/Public/TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "ThisIsMyDungeon/DungeonGameMode.h"
+#include "../DebugString.hpp"
 
 // Sets default values
 ASpawner::ASpawner()
@@ -39,7 +40,7 @@ void ASpawner::Tick(float DeltaTime)
 void ASpawner::SpawnEnemy()
 {
 	FTimerHandle Handle;
-	
+
 	for (int i = 0; i < spawnNumberEnemy; i++)
 	{
 		SpawnActor();
@@ -55,6 +56,12 @@ void ASpawner::SpawnEnemy()
 
 void ASpawner::SpawnActor()
 {
+	
+	ADungeonGameMode* GM = Cast<ADungeonGameMode>(UGameplayStatics::GetGameMode(this));
+	if (GM)
+	{
+		GM->counterEnemy++;
+	}
 	const FVector Location = GetActorLocation();
 	const FRotator Rotation = GetActorRotation();
 
