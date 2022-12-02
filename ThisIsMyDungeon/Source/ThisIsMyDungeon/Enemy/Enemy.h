@@ -21,6 +21,8 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
+	virtual void Destroyed() override;
+	
 	UPROPERTY(EditAnyWhere, BlueprintReadOnly, Category = "AI")
 		class UBehaviorTree* TreeAsset;
 

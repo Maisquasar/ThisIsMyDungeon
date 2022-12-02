@@ -29,6 +29,17 @@ void ASeasawTrap::BeginPlay()
 void ASeasawTrap::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if (!Placed) {
+		CanBePlacedCheck();
+		if (CanBePlaced)
+		{
+			seasawMeshComp->SetMaterial(0, ValidPreviewMaterial);
+		}
+		else
+		{
+			seasawMeshComp->SetMaterial(0, InvalidPreviewMaterial);
+		}
+	}
 
 	seasawMeshComp->AddRelativeRotation(FQuat::MakeFromEuler(FVector(0, 720.f * DeltaTime, 0)));
 	seasawMeshComp->SetRelativeLocation(FVector(sinf(GetWorld()->GetTimeSeconds() * 2.f) * 125.f, 0, 0));
