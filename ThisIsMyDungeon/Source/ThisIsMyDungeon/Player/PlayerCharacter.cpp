@@ -136,13 +136,19 @@ void APlayerCharacter::ResetRotation()
 {
 }
 
-void APlayerCharacter::ApplyDamage(int Damage)
+void APlayerCharacter::ApplyPlayerDamage(int Damage)
 {
+	if (isDead)
+		return;
 	CurrentLife -= Damage;
 	if (CurrentLife <= 0)
 	{
 		CurrentLife = 0;
+		GameOver();
+		float duration = GetMesh()->GetAnimInstance()->Montage_Play(DeathAnimation); 
+		isDead = true;
 
+		/*
 		// Enable Ragdoll
 		UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
 		DisableInput(Cast<APlayerController>(GetController()));
@@ -150,6 +156,7 @@ void APlayerCharacter::ApplyDamage(int Damage)
 
 		FTimerHandle _;
 		GetWorldTimerManager().SetTimer(_, this, &APlayerCharacter::Respawn, 5.f, false);
+		*/
 	}
 }
 
@@ -169,12 +176,14 @@ void APlayerCharacter::AddPower(int add)
 void APlayerCharacter::Respawn()
 {
 	// Disable Ragdoll
+	/*
 	EnableInput(Cast<APlayerController>(GetController()));
 	GetMesh()->SetAllBodiesSimulatePhysics(false);
 	GetMesh()->AttachTo(GetCapsuleComponent());
 	GetMesh()->SetRelativeLocationAndRotation(MeshRelativeTransform.GetLocation(), MeshRelativeTransform.GetRotation());
 	this->SetActorTransform(SpawnTransform);
 	CurrentLife = MaxLife;
+	*/
 }
 
 void APlayerCharacter::StartWave()
@@ -289,7 +298,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 	{
 		_currentFireBallCooldown -= DeltaTime;
 	}
-	if (_currentTime >= 5.f)
+	if (_currentTime >= 5.f && !InterRound)
 	{
 		AddPower(10);
 		_currentTime = 0;

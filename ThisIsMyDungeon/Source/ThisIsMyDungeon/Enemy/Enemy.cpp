@@ -24,8 +24,26 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	Player = Cast<APlayerCharacter>(GEngine->GetFirstLocalPlayerController(GetWorld())->GetPawn());
+	Player->ShowPressButton(false);
+	Player->InterRound = false;
 	MaxSpeed = this->GetCharacterMovement()->MaxWalkSpeed;
 	Health = MaxHealth;
+}
+
+void AEnemy::Destroyed()
+{
+	ADungeonGameMode* GM = Cast<ADungeonGameMode>(UGameplayStatics::GetGameMode(this));
+	if (GM)
+	{
+		GM->counterEnemy--;
+		if (GM->counterEnemy <= 0)
+		{
+			if (Player) {
+				Player->InterRound = true;
+				Player->ShowPressButton(true);
+			}
+		}
+	}
 }
 
 // Called every frame
@@ -58,9 +76,6 @@ void AEnemy::ApplyDamage(int Damage)
 	HideLifeBarCooldown = 2.f;
 	if (Health <= 0)
 	{
-		ADungeonGameMode* GM = Cast<ADungeonGameMode>(UGameplayStatics::GetGameMode(this));
-		if (GM)
-			GM->counterEnemy--;
 		Player->AddPower(10);
 		Destroy();
 	}

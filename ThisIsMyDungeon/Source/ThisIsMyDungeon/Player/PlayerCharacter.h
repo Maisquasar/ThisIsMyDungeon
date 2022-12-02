@@ -46,6 +46,9 @@ private:
 
 	bool IsInAnimation = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	bool isDead = false;
+
 	void OnShootButtonPressed() { isFiring = true; }
 	void OnShootButtonReleased() { isFiring = false; }
 
@@ -80,7 +83,7 @@ protected:
 	void OnCancelTrap();
 
 	UFUNCTION(BlueprintCallable)
-	void ApplyDamage(int Damage);
+	void ApplyPlayerDamage(int Damage);
 
 	void DisableTrap(bool);
 
@@ -102,13 +105,21 @@ protected:
 	void RotatePlus();
 	void RotateMinus();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void GameOver();
+
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
 	APlayerCharacter();
 
+
 	virtual void Tick(float DeltaTime) override;
 
 	void AddPower(int add);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void ShowPressButton(bool value);
 
 	UFUNCTION(BlueprintCallable)
 		int GetCurrentTrapIndex();
@@ -133,6 +144,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = Power)
 		int StartingPower = 800;
 
+	bool InterRound = true;
 
 	UPROPERTY(EditAnywhere)
 		float FireBallCooldown = 0.3f;
@@ -151,4 +163,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations")
 		UAnimMontage* ShootAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations")
+		UAnimMontage* DeathAnimation;
 };
