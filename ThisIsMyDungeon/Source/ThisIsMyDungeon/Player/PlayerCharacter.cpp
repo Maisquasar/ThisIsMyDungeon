@@ -111,21 +111,9 @@ int APlayerCharacter::GetCurrentTrapIndex()
 
 void APlayerCharacter::OnShoot()
 {
-	if (!ProjectileStart || !ProjectileClass || _currentFireBallCooldown > 0 || IsInAnimation)
-		return;
-	if (!inputsEnable)
+	if (!ProjectileStart || !ProjectileClass || _currentFireBallCooldown > 0)
 		return;
 	float duration = GetMesh()->GetAnimInstance()->Montage_Play(ShootAnimation);
-	IsInAnimation = true;
-	FTimerHandle _;
-	GetWorldTimerManager().SetTimer(_, this, &APlayerCharacter::Shoot, duration / 4, false);
-	FTimerHandle _2;
-	GetWorldTimerManager().SetTimer(_2, this, &APlayerCharacter::ResetRotation, duration, false);
-	GetMesh()->SetRelativeRotation(FRotator::MakeFromEuler(FVector(0, 0, 270 - 50)));
-}
-
-void APlayerCharacter::Shoot()
-{
 	_currentFireBallCooldown = FireBallCooldown;
 	// Raycast Point to find hit point.
 	FHitResult Hit;
@@ -138,14 +126,14 @@ void APlayerCharacter::Shoot()
 		fireball = GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), FollowCamera->GetForwardVector().ToOrientationRotator());
 	if (fireball)
 		fireball->EnemyToFollow = PreviousEnemy;
-	IsInAnimation = false;
+}
+
+void APlayerCharacter::Shoot()
+{
 }
 
 void APlayerCharacter::ResetRotation()
 {
-	if (isFiring || IsInAnimation)
-		return;
-	GetMesh()->SetRelativeRotation(FRotator::MakeFromEuler(FVector(0, 0, 270)));
 }
 
 void APlayerCharacter::ApplyDamage(int Damage)
