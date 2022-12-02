@@ -90,14 +90,14 @@ void APlayerCharacter::BeginPlay()
 	}
 	PlayerSpawn = GetActorLocation();
 
-	GetCharacterMovement()->DisableMovement();
+	inputsEnable = false;
 	FTimerHandle _;
 	GetWorldTimerManager().SetTimer(_, this, &APlayerCharacter::EnablePlayerInputs, 5.f, false);
 }
 
 void APlayerCharacter::EnablePlayerInputs()
 {
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	inputsEnable = true;
 }
 
 void APlayerCharacter::OnJump()
@@ -113,7 +113,7 @@ void APlayerCharacter::OnShoot()
 {
 	if (!ProjectileStart || !ProjectileClass || _currentFireBallCooldown > 0 || IsInAnimation)
 		return;
-	if (GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Walking)
+	if (!inputsEnable)
 		return;
 	float duration = GetMesh()->GetAnimInstance()->Montage_Play(ShootAnimation);
 	IsInAnimation = true;
@@ -198,7 +198,7 @@ void APlayerCharacter::StartWave()
 
 void APlayerCharacter::MoveForward(float Value)
 {
-	if (GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Walking)
+	if (!inputsEnable)
 		return;
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
@@ -214,7 +214,7 @@ void APlayerCharacter::MoveForward(float Value)
 
 void APlayerCharacter::MoveRight(float Value)
 {
-	if (GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Walking)
+	if (!inputsEnable)
 		return;
 	if ((Controller != nullptr) && (Value != 0.0f))
 	{
@@ -231,14 +231,14 @@ void APlayerCharacter::MoveRight(float Value)
 
 void APlayerCharacter::TurnAtRate(float Rate)
 {
-	if (GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Walking)
+	if (!inputsEnable)
 		return;
 	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
 void APlayerCharacter::LookUpAtRate(float Rate)
 {
-	if (GetCharacterMovement()->MovementMode != EMovementMode::MOVE_Walking)
+	if (!inputsEnable)
 		return;
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
