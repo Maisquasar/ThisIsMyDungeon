@@ -28,6 +28,17 @@ void ADungeonGameMode::BeginPlay()
 	{
 		Spawners.Add(Cast<ASpawner>(TempSpawner[i]));
 	}
+
+	int max = 0;
+
+	for (ASpawner* spawner : Spawners)
+	{
+		for (auto wave : spawner->ArrayOfWaves)
+		{
+			max = wave > max ? wave : max;
+		}
+	}
+	maxWaveCount = max;
 }
 
 void ADungeonGameMode::Tick(float DeltaSeconds)
