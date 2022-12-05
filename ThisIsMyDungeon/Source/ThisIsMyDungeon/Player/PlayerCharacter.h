@@ -44,16 +44,18 @@ private:
 
 	bool isFiring = false;
 
+	bool isPressed = false;
+
 	bool IsInAnimation = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
 	bool isDead = false;
 
-	void OnShootButtonPressed() { isFiring = true; }
+	void OnShootButtonPressed() { if (!isAttacking) { isFiring = true; } }
 	void OnShootButtonReleased() { isFiring = false; }
 
-	void OnSwingButtonPressed() { isAttacking = true; }
-	void OnSwingButtonReleased() { isAttacking = false; }
+	void OnSwingButtonPressed() { if (inputsEnable) { isAttacking = true; isPressed = true;} }
+	void OnSwingButtonReleased();
 
 	FHitResult hit;
 

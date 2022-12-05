@@ -63,6 +63,21 @@ APlayerCharacter::APlayerCharacter()
 	CurrentTrap = nullptr;
 }
 
+void APlayerCharacter::OnSwingButtonReleased()
+{
+	FTimerHandle TimerHandle;
+	isPressed = false;
+
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, [&]()
+			{	if (!isPressed)
+				{
+					isAttacking = false;
+				}
+			}, 0.5, false);
+
+
+}
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -128,9 +143,8 @@ int APlayerCharacter::GetCurrentTrapIndex()
 
 void APlayerCharacter::OnShoot()
 {
-	if (!ProjectileStart || !ProjectileClass || _currentFireBallCooldown > 0)
+	if (!ProjectileStart || !ProjectileClass || _currentFireBallCooldown > 0 || !inputsEnable)
 	{
-		Debug("Fail");
 		return;
 	}
 	float duration = GetMesh()->GetAnimInstance()->Montage_Play(ShootAnimation);
@@ -138,7 +152,7 @@ void APlayerCharacter::OnShoot()
 	// Raycast Point to find hit point.
 	FHitResult Hit;
 	AFireBall* fireball = nullptr;
-	Debug("OnShoot");
+
 	RaycastFromCamera(&Hit, 600000);
 	if (Hit.bBlockingHit) {
 		fireball = GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), (Hit.Location - ProjectileStart->GetComponentLocation()).ToOrientationRotator());
@@ -326,7 +340,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	if (isFiring)
 	{
-		Debug(" %f, %f, %f", ProjectileStart ,ProjectileClass, _currentFireBallCooldown);
 		OnShoot();
 	}
 }
