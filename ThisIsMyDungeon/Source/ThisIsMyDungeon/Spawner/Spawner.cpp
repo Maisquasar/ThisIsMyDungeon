@@ -43,7 +43,6 @@ void ASpawner::Tick(float DeltaTime)
 		if (GM->counterEnemy <= 0)
 		{
 			if (Player) {
-				Debug("%d, %d", GM->currentWave, ArrayOfWaves.Num());
 				if (GM->currentWave == ArrayOfWaves.Num() && GM->counterEnemy <= 0)
 				{
 					Player->ShowVictory(true);
