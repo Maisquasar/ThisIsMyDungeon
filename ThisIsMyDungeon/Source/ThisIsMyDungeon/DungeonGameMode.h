@@ -24,8 +24,11 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 public:
-	UPROPERTY(EditAnywhere) 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int currentWave = 0;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		int maxWaveCount;
 
 	UPROPERTY(EditAnywhere) 
 		int waveState = 0;
@@ -35,6 +38,8 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		int counterEnemy = 0;
+
+	
 
 	UPROPERTY(EditAnywhere) 
 		TArray<ASpawner*> Spawners;
