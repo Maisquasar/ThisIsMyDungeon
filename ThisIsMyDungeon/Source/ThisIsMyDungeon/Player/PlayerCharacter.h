@@ -72,6 +72,8 @@ protected:
 
 	void OnJump();
 
+	void OnStopJump();
+
 	void OnShoot();
 
 
@@ -157,7 +159,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Trap")
 		class AGenericTrap* CurrentTrap;
 
-	UPROPERTY(EditDefaultsOnly, Category = "Trap")
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Trap")
 		TArray<TSubclassOf<class AGenericTrap>> TrapsBlueprint;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations")
