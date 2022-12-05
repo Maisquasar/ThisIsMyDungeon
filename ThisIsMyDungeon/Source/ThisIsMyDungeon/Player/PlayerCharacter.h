@@ -131,6 +131,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void ShowPressButton(bool value);
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void ShowVictory(bool value);
+
 	UFUNCTION(BlueprintCallable)
 		int GetCurrentTrapIndex();
 
@@ -176,6 +179,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations")
 		UAnimMontage* DeathAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations")
+		UAnimMontage* VictoryAnimation;
 
 	// Projectiles
 

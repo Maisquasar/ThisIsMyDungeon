@@ -28,6 +28,17 @@ void ADungeonGameMode::BeginPlay()
 	{
 		Spawners.Add(Cast<ASpawner>(TempSpawner[i]));
 	}
+
+	int max = 0;
+
+	for (ASpawner* spawner : Spawners)
+	{
+		for (auto wave : spawner->ArrayOfWaves)
+		{
+			max = wave > max ? wave : max;
+		}
+	}
+	maxWaveCount = max;
 }
 
 void ADungeonGameMode::Tick(float DeltaSeconds)
@@ -38,10 +49,10 @@ void ADungeonGameMode::Tick(float DeltaSeconds)
 
 void ADungeonGameMode::StartWaveGM()
 {
-	currentWave++;
-	FTimerHandle MemberTimerHandle2;
 	if(counterEnemy <= 0)
 	{
+		currentWave++;
+		FTimerHandle MemberTimerHandle2;
 		for (int i = 0; i <= Spawners.Num() - 1; i++)
 		{
 			for (int j = 0; j <= Spawners[i]->ArrayOfWaves.Num() - 1; j++)
