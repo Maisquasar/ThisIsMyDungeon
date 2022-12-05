@@ -6,6 +6,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "ThisIsMyDungeon/DungeonGameMode.h"
 #include "../DebugString.hpp"
+#include "../Player/PlayerCharacter.h"
 
 // Sets default values
 ASpawner::ASpawner()
@@ -34,7 +35,21 @@ void ASpawner::BeginPlay()
 // Called every frame
 void ASpawner::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
+	Super::Tick(DeltaTime); 
+	ADungeonGameMode* GM = Cast<ADungeonGameMode>(UGameplayStatics::GetGameMode(this));
+	auto Player = Cast<APlayerCharacter>(GEngine->GetFirstLocalPlayerController(GetWorld())->GetPawn());
+	if (GM)
+	{
+		if (GM->counterEnemy <= 0)
+		{
+			if (Player) {
+				if (GM->currentWave == ArrayOfWaves.Num() && GM->counterEnemy <= 0)
+				{
+					Player->ShowVictory(true);
+				}
+			}
+		}
+	}
 }
 
 void ASpawner::SpawnEnemy()

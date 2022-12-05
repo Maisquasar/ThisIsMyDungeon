@@ -122,6 +122,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 		void ShowPressButton(bool value);
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void ShowVictory(bool value);
+
 	UFUNCTION(BlueprintCallable)
 		int GetCurrentTrapIndex();
 
