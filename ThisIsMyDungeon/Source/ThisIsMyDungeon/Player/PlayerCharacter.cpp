@@ -102,6 +102,14 @@ void APlayerCharacter::EnablePlayerInputs()
 
 void APlayerCharacter::OnJump()
 {
+	if (inputsEnable)
+		Jump();
+}
+
+void APlayerCharacter::OnStopJump()
+{
+	if (inputsEnable)
+		StopJumping();
 }
 
 int APlayerCharacter::GetCurrentTrapIndex()
@@ -324,8 +332,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::OnJump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &APlayerCharacter::OnStopJump);
 
 	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &APlayerCharacter::OnShootButtonPressed);
 	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &APlayerCharacter::OnShootButtonReleased);
