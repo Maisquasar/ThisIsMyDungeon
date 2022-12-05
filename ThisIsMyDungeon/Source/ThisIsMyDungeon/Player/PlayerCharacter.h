@@ -170,4 +170,7 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations")
 		UAnimMontage* DeathAnimation;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations")
+		UAnimMontage* VictoryAnimation;
 };
