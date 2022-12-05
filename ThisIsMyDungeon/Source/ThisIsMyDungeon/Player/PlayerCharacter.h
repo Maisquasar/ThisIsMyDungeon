@@ -52,6 +52,9 @@ private:
 	void OnShootButtonPressed() { isFiring = true; }
 	void OnShootButtonReleased() { isFiring = false; }
 
+	void OnSwingButtonPressed() { isAttacking = true; }
+	void OnSwingButtonReleased() { isAttacking = false; }
+
 	FHitResult hit;
 
 	float _currentTime = 0;
@@ -109,6 +112,10 @@ protected:
 	UFUNCTION(BlueprintImplementableEvent)
 		void GameOver();
 
+	UFUNCTION()
+		void BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit);
+
+	
 
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 public:
@@ -118,6 +125,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	void AddPower(int add);
+
+
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void ShowPressButton(bool value);
@@ -167,4 +176,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animations")
 		UAnimMontage* DeathAnimation;
+
+	// Projectiles
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Collider")
+		class UBoxComponent* HammerBoxCollider;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		bool isAttacking = false;
 };

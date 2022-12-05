@@ -4,6 +4,7 @@
 #include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
@@ -48,6 +49,11 @@ APlayerCharacter::APlayerCharacter()
 	CameraBoom->TargetArmLength = 300.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 
+	FName weaponSocketName = TEXT("HammerCenter");
+	HammerBoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision"));
+	HammerBoxCollider->SetupAttachment(GetMesh(), weaponSocketName);;
+	//HammerBoxCollider->SetWorldLocation(FVector(0,0,0));
+
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
@@ -60,7 +66,7 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	auto children = GetMesh()->GetChildComponent(0);
+	auto children = GetMesh()->GetChildComponent(1);
 	if (Cast<UStaticMeshComponent>(children))
 		ProjectileStart = Cast<UStaticMeshComponent>(children);
 	CurrentLife = MaxLife;
@@ -93,6 +99,9 @@ void APlayerCharacter::BeginPlay()
 	inputsEnable = false;
 	FTimerHandle _;
 	GetWorldTimerManager().SetTimer(_, this, &APlayerCharacter::EnablePlayerInputs, 5.f, false);
+
+	HammerBoxCollider->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::BeginOverlap);
+	
 }
 
 void APlayerCharacter::EnablePlayerInputs()
@@ -120,12 +129,16 @@ int APlayerCharacter::GetCurrentTrapIndex()
 void APlayerCharacter::OnShoot()
 {
 	if (!ProjectileStart || !ProjectileClass || _currentFireBallCooldown > 0)
+	{
+		Debug("Fail");
 		return;
+	}
 	float duration = GetMesh()->GetAnimInstance()->Montage_Play(ShootAnimation);
 	_currentFireBallCooldown = FireBallCooldown;
 	// Raycast Point to find hit point.
 	FHitResult Hit;
 	AFireBall* fireball = nullptr;
+	Debug("OnShoot");
 	RaycastFromCamera(&Hit, 600000);
 	if (Hit.bBlockingHit) {
 		fireball = GetWorld()->SpawnActor<AFireBall>(ProjectileClass, ProjectileStart->GetComponentLocation(), (Hit.Location - ProjectileStart->GetComponentLocation()).ToOrientationRotator());
@@ -311,7 +324,11 @@ void APlayerCharacter::Tick(float DeltaTime)
 	}
 	_currentTime += DeltaTime;
 
-	if (isFiring) OnShoot();
+	if (isFiring)
+	{
+		Debug(" %f, %f, %f", ProjectileStart ,ProjectileClass, _currentFireBallCooldown);
+		OnShoot();
+	}
 }
 
 
@@ -327,6 +344,20 @@ void APlayerCharacter::RotateMinus()
 	TrapRotation = TrapRotation + FRotator::MakeFromEuler(FVector(0, 0, 90));
 }
 
+void APlayerCharacter::BeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComponent, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& Hit)
+{
+	if (isAttacking)
+	{
+		if (AEnemy* Enemy = Cast<AEnemy>(OtherActor))
+		{
+			Enemy->NewWidgetAnim(GetActorLocation(), 15);
+			Enemy->ApplyDamage(15);
+		}
+	}
+}
+
+
+
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
@@ -337,6 +368,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	PlayerInputComponent->BindAction("Shoot", IE_Pressed, this, &APlayerCharacter::OnShootButtonPressed);
 	PlayerInputComponent->BindAction("Shoot", IE_Released, this, &APlayerCharacter::OnShootButtonReleased);
+
+	PlayerInputComponent->BindAction("Swing", IE_Pressed, this, &APlayerCharacter::OnSwingButtonPressed);
+	PlayerInputComponent->BindAction("Swing", IE_Released, this, &APlayerCharacter::OnSwingButtonReleased);
 
 	PlayerInputComponent->BindAction("SetUpTrap", IE_Pressed, this, &APlayerCharacter::OnTrapSetUp);
 	PlayerInputComponent->BindAction("CancelTrap", IE_Pressed, this, &APlayerCharacter::OnCancelTrap);
