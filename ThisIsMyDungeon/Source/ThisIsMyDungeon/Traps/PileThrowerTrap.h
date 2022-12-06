@@ -61,6 +61,9 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Firing")
 		class UNiagaraComponent* NiagaraComp;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+		class USoundBase* Sound;
+
 	UPROPERTY(EditAnywhere, Category = "Damage")
 		float Damage = 2;
 

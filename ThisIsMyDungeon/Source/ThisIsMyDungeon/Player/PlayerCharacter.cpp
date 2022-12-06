@@ -533,7 +533,6 @@ void APlayerCharacter::OnTrapSetUp()
 		FTimerHandle Handle;
 		lastTrap->SetUp();
 		GetWorld()->GetTimerManager().SetTimer(Handle, this, &APlayerCharacter::CheckPath, 0.1f);
-
 	}
 	else
 	{

@@ -3,6 +3,7 @@
 
 #include "PileThrowerTrap.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "../DebugString.hpp"
 #include "Components/BoxComponent.h"
 #include "NiagaraFunctionLibrary.h"
@@ -57,6 +58,8 @@ void APileThrowerTrap::Tick(float DeltaTime)
 			if (NiagaraComp)
 			{
 				NiagaraComp->SetVisibility(true);
+				UGameplayStatics::PlaySoundAtLocation(this, Sound, GetActorLocation());
+				
 			}
 	
 			//NiagaraComp->DestroyComponent()
