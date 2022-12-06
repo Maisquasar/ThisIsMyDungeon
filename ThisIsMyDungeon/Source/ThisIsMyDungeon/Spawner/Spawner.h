@@ -50,4 +50,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) 
 		TArray<int> ArrayOfTimeWaves;
 
+
+	UPROPERTY(EditAnywhere, Category = "Indicator")
+		class UNiagaraComponent* NiagaraComp;
+
 };

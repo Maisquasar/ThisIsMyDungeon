@@ -24,6 +24,8 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 
 public:
+	bool endWave = false;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		int currentWave = 0;
 

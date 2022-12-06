@@ -5,14 +5,20 @@
 #include "Runtime/Engine/Public/TimerManager.h"
 #include "Kismet/GameplayStatics.h"
 #include "ThisIsMyDungeon/DungeonGameMode.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "../DebugString.hpp"
 #include "../Player/PlayerCharacter.h"
 
 // Sets default values
 ASpawner::ASpawner()
 {
+	USceneComponent* Root = CreateDefaultSubobject<USceneComponent>(TEXT("RootComp"));
+	RootComponent = Root;
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	NiagaraComp = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Indicator"));
+	NiagaraComp->SetupAttachment(Root);
 
 }
 
@@ -20,7 +26,7 @@ ASpawner::ASpawner()
 void ASpawner::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	NiagaraComp->SetVisibility(false);
 	//SpawnEnemy();
 	
 	/* for (int i = 0; i < WavesNumber; i++)
