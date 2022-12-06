@@ -27,6 +27,9 @@ void AEnemy::BeginPlay()
 	Player->ShowPressButton(false);
 	Player->InterRound = false;
 	MaxSpeed = this->GetCharacterMovement()->MaxWalkSpeed;
+	ADungeonGameMode* GM = Cast<ADungeonGameMode>(UGameplayStatics::GetGameMode(this));
+	if (GM)
+		MaxHealth = 25 * GM->currentWave + 100;
 	Health = MaxHealth;
 }
 
@@ -76,7 +79,7 @@ void AEnemy::ApplyDamage(int Damage)
 	HideLifeBarCooldown = 2.f;
 	if (Health <= 0)
 	{
-		Player->AddPower(10);
+		Player->AddPower(100);
 		Destroy();
 	}
 }
