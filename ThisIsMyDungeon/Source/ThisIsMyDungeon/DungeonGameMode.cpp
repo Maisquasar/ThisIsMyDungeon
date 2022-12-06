@@ -4,6 +4,8 @@
 #include "DungeonGameMode.h"
 #include "Runtime/Engine/Public/TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 #define Debug(x, ...) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Cyan, FString::Printf(TEXT(x), __VA_ARGS__));}
 #define DebugError(x, ...) if(GEngine){GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, FString::Printf(TEXT(x), __VA_ARGS__));}
@@ -45,6 +47,20 @@ void ADungeonGameMode::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	//Debug("%d", counterEnemy);
+	if (!endWave && counterEnemy <= 0)
+	{
+		endWave = true;
+		for (int i = 0; i <= Spawners.Num() - 1; i++)
+		{
+			for (int j = 0; j <= Spawners[i]->ArrayOfWaves.Num() - 1; j++)
+			{
+				if (Spawners[i]->ArrayOfWaves[j] == currentWave+1)
+				{
+					Spawners[i]->NiagaraComp->SetVisibility(true);
+				}
+			}
+		}
+	}
 }
 
 void ADungeonGameMode::StartWaveGM()
@@ -60,7 +76,9 @@ void ADungeonGameMode::StartWaveGM()
 				//Debug("%d", Spawners[i]->ArrayOfWaves[j]);
 				if(Spawners[i]->ArrayOfWaves[j] == currentWave)
 				{
+					Spawners[i]->NiagaraComp->SetVisibility(false);
 					Spawners[i]->SpawnEnemy();
+					endWave = false;
 				}
 			}
 		}
