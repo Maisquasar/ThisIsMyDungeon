@@ -53,7 +53,7 @@ void APileThrowerTrap::Tick(float DeltaTime)
 		{
 			isFiring = true;
 			FTimerHandle Handle;
-			GetWorld()->GetTimerManager().SetTimer(Handle, this, &APileThrowerTrap::Reload, 4.f);
+			GetWorld()->GetTimerManager().SetTimer(Handle, this, &APileThrowerTrap::Reload, 4.2f);
 			// This spawns the chosen effect on the owning WeaponMuzzle SceneComponent
 			if (NiagaraComp)
 			{
