@@ -8,6 +8,7 @@
 ABoxTrap::ABoxTrap()
 {
 	Cost = 200;
+	CanBePlacedOnWalls = false;
 }
 
 void ABoxTrap::BeginPlay()
